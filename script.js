@@ -1,50 +1,52 @@
 // Endpoint do Apps Script
 const endpointRanking = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
 
-// Função auxiliar para acessar os campos sem se preocupar com letras maiúsculas/minúsculas
-function getValor(obj, chaveProcurada) {
-    const chave = Object.keys(obj).find(k => k.trim().toLowerCase() === chaveProcurada.trim().toLowerCase());
-    return chave ? obj[chave] : "";
-}
-
-// Função para criar tabela de ranking
-function mostrarRanking(dados) {
+// Função para criar tabela de ranking de pontuações (todos os registros)
+function mostrarRankingPontuacoes(dados) {
     const div = document.getElementById("ranking");
-    let html = "<table><tr><th>Posição</th><th>Time</th><th>Pontos</th></tr>";
+    let html = "<h2>Ranking de Pontuações</h2>";
+    html += "<table><tr><th>Posição</th><th>Equipe</th><th>Pontuação</th></tr>";
 
-    // Ordena pelo campo 'Pontuação Total' (caso o valor tenha barra ou texto, extrai número)
+    // Ordena os registros pela pontuação (primeiro número antes da barra)
     dados.sort((a, b) => {
-        const pontosA = parseInt(getValor(a, "Pontuação Total")) || 0;
-        const pontosB = parseInt(getValor(b, "Pontuação Total")) || 0;
+        const pontosA = parseInt(a["Pontuação Total"].split("/")[0]) || 0;
+        const pontosB = parseInt(b["Pontuação Total"].split("/")[0]) || 0;
         return pontosB - pontosA;
     });
 
     dados.forEach((t, i) => {
-        const nome = getValor(t, "Nome da Equipe");
-        const pontos = getValor(t, "Pontuação Total");
-        html += `<tr><td>${i + 1}</td><td>${nome}</td><td>${pontos}</td></tr>`;
+        html += `<tr><td>${i + 1}</td><td>${t["Nome da Equipe"]}</td><td>${t["Pontuação Total"]}</td></tr>`;
     });
 
     html += "</table>";
     div.innerHTML = html;
 }
 
-// Função para criar tabela de rodadas
-function mostrarRodadas(dados) {
-    const div = document.getElementById("rodadas");
-    let html = "<table><tr><th>Rodada</th><th>Aliança Vermelha</th><th>Aliança Azul</th></tr>";
+// Função para criar o ranking geral (melhor pontuação de cada equipe)
+function mostrarRankingGeral(dados) {
+    const div = document.getElementById("rankingGeral");
+    let html = "<h2>Ranking Geral</h2>";
+    html += "<table><tr><th>Posição</th><th>Equipe</th><th>Melhor Pontuação</th></tr>";
 
-    dados.forEach(r => {
-        const rodada = getValor(r, "Rodadas");
-        const vermelha1 = getValor(r, "Vermelha 1");
-        const vermelha2 = getValor(r, "Vermelha 2");
-        const azul1 = getValor(r, "Azul 1");
-        const azul2 = getValor(r, "Azul 2");
+    const equipes = {};
 
-        const vermelha = [vermelha1, vermelha2].filter(Boolean).join(" + ");
-        const azul = [azul1, azul2].filter(Boolean).join(" + ");
+    // Percorre todos os registros e guarda a melhor pontuação de cada equipe
+    dados.forEach(t => {
+        const nome = t["Nome da Equipe"];
+        const pontos = parseInt(t["Pontuação Total"].split("/")[0]) || 0;
 
-        html += `<tr><td>${rodada}</td><td>${vermelha}</td><td>${azul}</td></tr>`;
+        if (!equipes[nome] || pontos > equipes[nome]) {
+            equipes[nome] = pontos;
+        }
+    });
+
+    // Converte em array e ordena do maior para o menor
+    const rankingGeral = Object.entries(equipes)
+        .map(([time, pontos]) => ({ time, pontos }))
+        .sort((a, b) => b.pontos - a.pontos);
+
+    rankingGeral.forEach((t, i) => {
+        html += `<tr><td>${i + 1}</td><td>${t.time}</td><td>${t.pontos}</td></tr>`;
     });
 
     html += "</table>";
@@ -55,8 +57,7 @@ function mostrarRodadas(dados) {
 fetch(endpointRanking)
     .then(res => res.json())
     .then(dados => {
-        console.log("Dados recebidos:", dados); // ajuda a conferir no console
-        mostrarRanking(dados);
-        mostrarRodadas(dados);
+        mostrarRankingPontuacoes(dados);
+        mostrarRankingGeral(dados);
     })
     .catch(err => console.error("Erro ao carregar dados:", err));

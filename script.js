@@ -1,61 +1,61 @@
 // Endpoint do Apps Script
-const endpoint = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
+const endpointRanking = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
 
-// Função para exibir o ranking
+// Função auxiliar para acessar os campos sem se preocupar com letras maiúsculas/minúsculas
+function getValor(obj, chaveProcurada) {
+    const chave = Object.keys(obj).find(k => k.trim().toLowerCase() === chaveProcurada.trim().toLowerCase());
+    return chave ? obj[chave] : "";
+}
+
+// Função para criar tabela de ranking
 function mostrarRanking(dados) {
     const div = document.getElementById("ranking");
-    let html = "<table><tr><th>Posição</th><th>Nome da Equipe</th><th>Pontuação</th></tr>";
+    let html = "<table><tr><th>Posição</th><th>Time</th><th>Pontos</th></tr>";
 
-    // Agrupa por equipe e soma a pontuação
-    const ranking = {};
-    dados.forEach(linha => {
-        const equipe = linha["Nome da Equipe"];
-        const pontosTexto = linha["Pontuação"];
-        const pontos = parseInt(pontosTexto.split("/")[0].trim()) || 0; // pega só o número antes da barra
-
-        if (!ranking[equipe]) ranking[equipe] = 0;
-        ranking[equipe] += pontos;
+    // Ordena pelo campo 'Pontuação Total' (caso o valor tenha barra ou texto, extrai número)
+    dados.sort((a, b) => {
+        const pontosA = parseInt(getValor(a, "Pontuação Total")) || 0;
+        const pontosB = parseInt(getValor(b, "Pontuação Total")) || 0;
+        return pontosB - pontosA;
     });
 
-    // Converte para array e ordena
-    const rankingArray = Object.entries(ranking)
-        .map(([equipe, pontos]) => ({ equipe, pontos }))
-        .sort((a, b) => b.pontos - a.pontos);
-
-    // Monta a tabela
-    rankingArray.forEach((t, i) => {
-        html += `<tr><td>${i + 1}</td><td>${t.equipe}</td><td>${t.pontos}</td></tr>`;
+    dados.forEach((t, i) => {
+        const nome = getValor(t, "Nome da Equipe");
+        const pontos = getValor(t, "Pontuação Total");
+        html += `<tr><td>${i + 1}</td><td>${nome}</td><td>${pontos}</td></tr>`;
     });
 
     html += "</table>";
     div.innerHTML = html;
 }
 
-// Função para exibir as rodadas
+// Função para criar tabela de rodadas
 function mostrarRodadas(dados) {
     const div = document.getElementById("rodadas");
-    let html = "<table><tr><th>Rodada</th><th>Nome da Equipe</th><th>Aliança</th><th>Pontuação</th><th>Juiz</th></tr>";
+    let html = "<table><tr><th>Rodada</th><th>Aliança Vermelha</th><th>Aliança Azul</th></tr>";
 
     dados.forEach(r => {
-        html += `
-            <tr>
-                <td>${r["Rodadas"]}</td>
-                <td>${r["Nome da Equipe"]}</td>
-                <td>${r["Aliança"]}</td>
-                <td>${r["Pontuação"]}</td>
-                <td>${r["Juiz"]}</td>
-            </tr>`;
+        const rodada = getValor(r, "Rodadas");
+        const vermelha1 = getValor(r, "Vermelha 1");
+        const vermelha2 = getValor(r, "Vermelha 2");
+        const azul1 = getValor(r, "Azul 1");
+        const azul2 = getValor(r, "Azul 2");
+
+        const vermelha = [vermelha1, vermelha2].filter(Boolean).join(" + ");
+        const azul = [azul1, azul2].filter(Boolean).join(" + ");
+
+        html += `<tr><td>${rodada}</td><td>${vermelha}</td><td>${azul}</td></tr>`;
     });
 
     html += "</table>";
     div.innerHTML = html;
 }
 
-// Buscar dados do Google Sheets
-fetch(endpoint)
+// Busca os dados do JSON e atualiza o site
+fetch(endpointRanking)
     .then(res => res.json())
     .then(dados => {
-        console.log(dados); // 👀 veja no console se os nomes das colunas estão certinhos
+        console.log("Dados recebidos:", dados); // ajuda a conferir no console
         mostrarRanking(dados);
         mostrarRodadas(dados);
     })

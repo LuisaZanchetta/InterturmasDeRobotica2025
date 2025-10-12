@@ -1,124 +1,86 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partidas de Robótica</title>
+<script>
+const endpointRanking = "SEU_ENDPOINT_AQUI"; // endpoint da planilha (mesmo do ranking)
 
-  <!-- Bootstrap e DataTables -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+// Lista fixa das partidas
+const partidas = [
+  { rodada: 1, vermelho: "Brás Cubas", azul: "Dumount" },
+  { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
+  { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
+  { rodada: 4, vermelho: "Bras", azul: "Brentani" },
+  { rodada: 5, vermelho: "Capitu", azul: "Marta" },
+  { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
+  { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
+  { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
+  { rodada: 9, vermelho: "Marta", azul: "Dumount" },
+  { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
+  { rodada: 11, vermelho: "Marta", azul: "Capitu" },
+  { rodada: 12, vermelho: "Bras", azul: "Brentani" }
+];
 
-  <style>
-    body {
-      background: #f7f9fc;
-      font-family: "Segoe UI", sans-serif;
-    }
-    h1, h2 {
-      text-align: center;
-      margin-top: 20px;
-      color: #0d6efd;
-    }
-    .table-container {
-      margin: 40px auto;
-      width: 90%;
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .alianca-vermelha {
-      color: #b30000;
-      font-weight: 600;
-    }
-    .alianca-azul {
-      color: #0044cc;
-      font-weight: 600;
-    }
-    .btn-voltar {
-      display: block;
-      margin: 20px auto;
-      width: fit-content;
-    }
-  </style>
-</head>
-<body>
+const tbody = document.querySelector("#tabelaPartidas tbody");
 
-  <h1>🤖 Partidas de Robótica</h1>
+// Preencher tabela com botões
+partidas.forEach((p, i) => {
+  const linha = `
+    <tr>
+      <td>${p.rodada}</td>
+      <td class="alianca-vermelha">${p.vermelho}</td>
+      <td class="alianca-azul">${p.azul}</td>
+      <td>
+        <button class="btn btn-sm btn-secondary btn-resultado" data-index="${i}">
+          Ver resultado
+        </button>
+      </td>
+    </tr>
+  `;
+  tbody.insertAdjacentHTML("beforeend", linha);
+});
 
-  <!-- Botão para voltar ao ranking -->
-  <a href="index.html" class="btn btn-primary btn-voltar">⬅️ Voltar ao Ranking</a>
+// Ativar DataTable
+$("#tabelaPartidas").DataTable({
+  language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
+  pageLength: 6
+});
 
-  <div class="table-container">
-    <h2>🧩 Lista de Partidas</h2>
-    <table id="tabelaPartidas" class="table table-striped">
-      <thead>
-        <tr>
-          <th>Rodada</th>
-          <th>Equipe Vermelha</th>
-          <th>Equipe Azul</th>
-          <th>Resultado</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- Bibliotecas JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
-  <script>
-    // Lista fixa das partidas com resultados simulados
-    const partidas = [
-      { rodada: 1, vermelho: "Bras", azul: "Dumount", resultado: "110 x 120" },
-      { rodada: 2, vermelho: "Fe Garay", azul: "Marta", resultado: "95 x 100" },
-      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay", resultado: "120 x 110" },
-      { rodada: 4, vermelho: "Bras", azul: "Brentani", resultado: "105 x 90" },
-      { rodada: 5, vermelho: "Capitu", azul: "Marta", resultado: "115 x 120" },
-      { rodada: 6, vermelho: "Dumount", azul: "Brentani", resultado: "130 x 110" },
-      { rodada: 7, vermelho: "Brentani", azul: "Capitu", resultado: "100 x 105" },
-      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay", resultado: "120 x 95" },
-      { rodada: 9, vermelho: "Marta", azul: "Dumount", resultado: "110 x 130" },
-      { rodada: 10, vermelho: "Fe Garay", azul: "Bras", resultado: "105 x 115" },
-      { rodada: 11, vermelho: "Marta", azul: "Capitu", resultado: "120 x 110" },
-      { rodada: 12, vermelho: "Bras", azul: "Brentani", resultado: "110 x 90" }
-    ];
-
-    const tbody = document.querySelector("#tabelaPartidas tbody");
-
-    partidas.forEach((p, i) => {
-      const linha = `
-        <tr>
-          <td>${p.rodada}</td>
-          <td class="alianca-vermelha">${p.vermelho}</td>
-          <td class="alianca-azul">${p.azul}</td>
-          <td>
-            <button class="btn btn-sm btn-secondary btn-resultado" data-index="${i}">
-              Ver resultado
-            </button>
-          </td>
-        </tr>
-      `;
-      tbody.insertAdjacentHTML("beforeend", linha);
-    });
-
-    // Ativar DataTable
-    $("#tabelaPartidas").DataTable({
-      language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
-      pageLength: 6
-    });
-
-    // Função para revelar o resultado ao clicar
+// Função para buscar as pontuações consolidadas do ranking
+fetch(endpointRanking)
+  .then(res => res.json())
+  .then(dados => {
+    
+    // 🔹 Para cada botão, configurar o clique
     document.querySelectorAll(".btn-resultado").forEach(btn => {
       btn.addEventListener("click", () => {
         const index = btn.getAttribute("data-index");
-        btn.textContent = partidas[index].resultado;
-        btn.disabled = true;
+        const partida = partidas[index];
+
+        // Procurar a pontuação de cada equipe usando o ranking consolidado
+        const vermelhoData = dados.find(
+          e => e["Nome da Equipe"].trim() === partida.vermelho
+               && parseInt(e["Rodadas"]) === partida.rodada
+        );
+
+        const azulData = dados.find(
+          e => e["Nome da Equipe"].trim() === partida.azul
+               && parseInt(e["Rodadas"]) === partida.rodada
+        );
+
+        const pontuacaoVermelho = vermelhoData ? vermelhoData["Pontuação Total"] : "-";
+        const pontuacaoAzul = azulData ? azulData["Pontuação Total"] : "-";
+
+        // Criar o box do resultado
+        const box = document.createElement("div");
+        box.classList.add("resultado-box");
+        box.innerHTML = `
+          <div class="resultado-vermelho">${partida.vermelho} ${pontuacaoVermelho}</div>
+          <div class="resultado-azul">${partida.azul} ${pontuacaoAzul}</div>
+        `;
+
+        // Substituir o botão pelo resultado
+        btn.parentElement.innerHTML = "";
+        btn.parentElement.appendChild(box);
       });
     });
-  </script>
 
-</body>
-</html>
+  })
+  .catch(err => console.error("Erro ao carregar dados do ranking:", err));
+</script>

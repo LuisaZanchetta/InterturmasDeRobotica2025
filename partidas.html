@@ -100,8 +100,22 @@
         tbody.innerHTML = "";
 
         partidas.forEach(p => {
-          const vermelhoData = dados.find(e => e["Nome da Equipe"] === p.vermelho);
-          const azulData = dados.find(e => e["Nome da Equipe"] === p.azul);
+         function normalizar(txt) {
+  return (txt || "").toLowerCase().trim();
+}
+
+const vermelhoData = dados.find(e =>
+  normalizar(e["Nome da Equipe"]) === normalizar(p.vermelho) &&
+  normalizar(e["Rodada"]) === normalizar(p.rodada) &&
+  normalizar(e["Aliança"]).includes("vermelha")
+);
+
+const azulData = dados.find(e =>
+  normalizar(e["Nome da Equipe"]) === normalizar(p.azul) &&
+  normalizar(e["Rodada"]) === normalizar(p.rodada) &&
+  normalizar(e["Aliança"]).includes("azul")
+);
+
 
           const linha = `
             <tr>

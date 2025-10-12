@@ -126,9 +126,9 @@
 
         const corpoRanking = document.querySelector("#tabelaRanking tbody");
         rankingGeral.forEach(r => {
-          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
+          const classeAlianca = r.alianca.toLowerCase().includes("Vermelha")
             ? "alianca-vermelha"
-            : r.alianca.toLowerCase().includes("azul")
+            : r.alianca.toLowerCase().includes("Azul")
               ? "alianca-azul"
               : "";
           corpoRanking.innerHTML += `

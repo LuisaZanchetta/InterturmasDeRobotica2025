@@ -35,11 +35,6 @@
       color: #0044cc;
       font-weight: 600;
     }
-    .btn-voltar {
-      display: block;
-      margin: 20px auto;
-      width: fit-content;
-    }
 
     /* Estilo do resultado */
     .resultado-box {
@@ -68,6 +63,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .btn-voltar {
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
     }
   </style>
 </head>
@@ -106,44 +106,26 @@
       .then(dados => {
         const tbody = document.querySelector("#tabelaPartidas tbody");
 
-        dados.forEach((p, i) => {
+        dados.forEach(p => {
           const linha = `
             <tr>
               <td>${p.Rodada}</td>
               <td class="alianca-vermelha">${p.Vermelha}</td>
               <td class="alianca-azul">${p.Azul}</td>
               <td>
-                <button class="btn btn-sm btn-secondary btn-resultado" data-index="${i}">
-                  Ver resultado
-                </button>
+                <div class="resultado-box">
+                  <div class="resultado-vermelho">${p.Vermelha} ${p["Resultado Vermelha"]}</div>
+                  <div class="resultado-azul">${p.Azul} ${p["Resultado Azul"]}</div>
+                </div>
               </td>
             </tr>
           `;
           tbody.insertAdjacentHTML("beforeend", linha);
         });
 
-        // Ativar DataTable após preencher os dados
         $("#tabelaPartidas").DataTable({
           language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
           pageLength: 6
-        });
-
-        // Adicionar evento para mostrar resultado
-        document.querySelectorAll(".btn-resultado").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const index = btn.getAttribute("data-index");
-            const partida = dados[index];
-
-            const box = document.createElement("div");
-            box.classList.add("resultado-box");
-            box.innerHTML = `
-              <div class="resultado-vermelho">${partida.Vermelha} ${partida["Resultado Vermelha"]}</div>
-              <div class="resultado-azul">${partida.Azul} ${partida["Resultado Azul"]}</div>
-            `;
-
-            btn.parentElement.innerHTML = "";
-            btn.parentElement.appendChild(box);
-          });
         });
       })
       .catch(err => console.error("Erro ao carregar dados do Mapa de Rodadas:", err));

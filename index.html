@@ -97,9 +97,9 @@
         // --- TABELA DE RODADAS ---
         const corpoRodadas = document.querySelector("#tabelaRodadas tbody");
         rodadas.forEach(r => {
-          const classeAlianca = r.alianca.toLowerCase().includes("Vermelha")
+          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
             ? "alianca-vermelha"
-            : r.alianca.toLowerCase().includes("Azul")
+            : r.alianca.toLowerCase().includes("azul")
               ? "alianca-azul"
               : "";
           corpoRodadas.innerHTML += `
@@ -126,9 +126,9 @@
 
         const corpoRanking = document.querySelector("#tabelaRanking tbody");
         rankingGeral.forEach(r => {
-          const classeAlianca = r.alianca.toLowerCase().includes("Vermelha")
+          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
             ? "alianca-vermelha"
-            : r.alianca.toLowerCase().includes("Azul")
+            : r.alianca.toLowerCase().includes("azul")
               ? "alianca-azul"
               : "";
           corpoRanking.innerHTML += `

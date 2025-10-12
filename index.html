@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranking de Robótica</title>
+
+  <!-- Importa o Bootstrap e DataTables -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+  <style>
+    body {
+      background: #f7f9fc;
+      font-family: "Segoe UI", sans-serif;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-top: 20px;
+      color: #0d6efd;
+    }
+    .table-container {
+      margin: 40px auto;
+      width: 90%;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    /* Cores das alianças */
+    .alianca-vermelha {
+      background-color: #ffe5e5 !important;
+      color: #b30000 !important;
+      font-weight: 600;
+    }
+    .alianca-azul {
+      background-color: #e5f0ff !important;
+      color: #0044cc !important;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏆 Ranking de Robótica</h1>
+
+  <div class="table-container">
+    <h2>🧩 Rodadas</h2>
+    <table id="tabelaRodadas" class="table table-striped">
+      <thead>
+        <tr>
+          <th>Equipe</th>
+          <th>Rodada</th>
+          <th>Aliança</th>
+          <th>Pontuação</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="table-container">
+    <h2>🏅 Ranking Geral (melhor pontuação)</h2>
+    <table id="tabelaRanking" class="table table-striped">
+      <thead>
+        <tr>
+          <th>Equipe</th>
+          <th>Melhor Pontuação</th>
+          <th>Aliança</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Bibliotecas JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    const url = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
+
+    async function carregarDados() {
+      try {
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+
+        // Extrai e renomeia colunas relevantes
+        const rodadas = dados.map(linha => ({
+          equipe: linha.D,
+          rodada: linha.E,
+          alianca: (linha.F || "").trim(),
+          pontuacao: parseFloat(linha.AG) || 0
+        }));
+
+        // --- TABELA DE RODADAS ---
+        const corpoRodadas = document.querySelector("#tabelaRodadas tbody");
+        rodadas.forEach(r => {
+          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
+            ? "alianca-vermelha"
+            : r.alianca.toLowerCase().includes("azul")
+              ? "alianca-azul"
+              : "";
+          corpoRodadas.innerHTML += `
+            <tr class="${classeAlianca}">
+              <td>${r.equipe}</td>
+              <td>${r.rodada}</td>
+              <td>${r.alianca}</td>
+              <td>${r.pontuacao}</td>
+            </tr>
+          `;
+        });
+
+        // --- RANKING GERAL (maior pontuação por equipe) ---
+        const rankingMap = {};
+        rodadas.forEach(r => {
+          if (!rankingMap[r.equipe] || r.pontuacao > rankingMap[r.equipe].pontuacao) {
+            rankingMap[r.equipe] = { pontuacao: r.pontuacao, alianca: r.alianca };
+          }
+        });
+
+        const rankingGeral = Object.entries(rankingMap)
+          .map(([equipe, info]) => ({ equipe, ...info }))
+          .sort((a, b) => b.pontuacao - a.pontuacao);
+
+        const corpoRanking = document.querySelector("#tabelaRanking tbody");
+        rankingGeral.forEach(r => {
+          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
+            ? "alianca-vermelha"
+            : r.alianca.toLowerCase().includes("azul")
+              ? "alianca-azul"
+              : "";
+          corpoRanking.innerHTML += `
+            <tr class="${classeAlianca}">
+              <td>${r.equipe}</td>
+              <td>${r.pontuacao}</td>
+              <td>${r.alianca}</td>
+            </tr>
+          `;
+        });
+
+        // --- Ativa DataTables (busca e ordenação) ---
+        $('#tabelaRodadas').DataTable({
+          order: [[3, 'desc']],
+          language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+        });
+
+        $('#tabelaRanking').DataTable({
+          order: [[1, 'desc']],
+          language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+        });
+
+      } catch (erro) {
+        console.error("Erro ao carregar dados:", erro);
+        alert("Erro ao carregar dados. Verifique o link da planilha.");
+      }
+    }
+
+    carregarDados();
+  </script>
+
+</body>
+</html>

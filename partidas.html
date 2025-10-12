@@ -46,10 +46,9 @@
 
   <h1>🤖 Partidas de Robótica</h1>
 
-  <!-- 🔹 Botão para voltar ao ranking -->
+  <!-- Botão para voltar ao ranking -->
   <a href="index.html" class="btn btn-primary btn-voltar">⬅️ Voltar ao Ranking</a>
 
-  <!-- 🔹 Tabela das partidas -->
   <div class="table-container">
     <h2>🧩 Lista de Partidas</h2>
     <table id="tabelaPartidas" class="table table-striped">
@@ -66,33 +65,35 @@
     </table>
   </div>
 
-  <!-- 🔹 Bibliotecas JS -->
+  <!-- Bibliotecas JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-  <!-- 🔹 Script principal -->
+  <!-- Script principal -->
   <script>
-    // Endpoint (mesmo do ranking)
     const endpointRanking = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
 
-    // 🔹 Lista fixa das partidas
+    // Lista fixa das partidas
     const partidas = [
-      { rodada: 1, vermelho: "Brás", azul: "Dumount" },
+      { rodada: 1, vermelho: "Bras", azul: "Dumount" },
       { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
       { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
-      { rodada: 4, vermelho: "Brás", azul: "Brentani" },
+      { rodada: 4, vermelho: "Bras", azul: "Brentani" },
       { rodada: 5, vermelho: "Capitu", azul: "Marta" },
       { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
       { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
       { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
       { rodada: 9, vermelho: "Marta", azul: "Dumount" },
-      { rodada: 10, vermelho: "Fe Garay", azul: "Brás" },
+      { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
       { rodada: 11, vermelho: "Marta", azul: "Capitu" },
-      { rodada: 12, vermelho: "Brás", azul: "Brentani" }
+      { rodada: 12, vermelho: "Bras", azul: "Brentani" }
     ];
 
-    // 🔹 Buscar pontuações e preencher tabela
+    function normalizar(txt) {
+      return (txt || "").toLowerCase().trim();
+    }
+
     fetch(endpointRanking)
       .then(response => response.json())
       .then(dados => {
@@ -100,22 +101,19 @@
         tbody.innerHTML = "";
 
         partidas.forEach(p => {
-         function normalizar(txt) {
-  return (txt || "").toLowerCase().trim();
-}
+          // Buscar pontuação da equipe vermelha na rodada correta
+          const vermelhoData = dados.find(e =>
+            normalizar(e["Nome da Equipe"]) === normalizar(p.vermelho) &&
+            normalizar(e["Rodada"]) === normalizar(p.rodada) &&
+            normalizar(e["Aliança"]).includes("vermelha")
+          );
 
-const vermelhoData = dados.find(e =>
-  normalizar(e["Nome da Equipe"]) === normalizar(p.vermelho) &&
-  normalizar(e["Rodada"]) === normalizar(p.rodada) &&
-  normalizar(e["Aliança"]).includes("vermelha")
-);
-
-const azulData = dados.find(e =>
-  normalizar(e["Nome da Equipe"]) === normalizar(p.azul) &&
-  normalizar(e["Rodada"]) === normalizar(p.rodada) &&
-  normalizar(e["Aliança"]).includes("azul")
-);
-
+          // Buscar pontuação da equipe azul na rodada correta
+          const azulData = dados.find(e =>
+            normalizar(e["Nome da Equipe"]) === normalizar(p.azul) &&
+            normalizar(e["Rodada"]) === normalizar(p.rodada) &&
+            normalizar(e["Aliança"]).includes("azul")
+          );
 
           const linha = `
             <tr>

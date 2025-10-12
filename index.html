@@ -88,10 +88,10 @@
 
         // Extrai e renomeia colunas relevantes
         const rodadas = dados.map(linha => ({
-          equipe: linha.D,
-          rodada: linha.E,
-          alianca: (linha.F || "").trim(),
-          pontuacao: parseFloat(linha.AG) || 0
+          equipe: linha["Nome da Equipe"],
+          rodada: linha["Rodadas"],
+          alianca: (linha["Aliança"] || "").trim(),
+          pontuacao: parseFloat(linha["Pontuação Total"]) || 0
         }));
 
         // --- TABELA DE RODADAS ---

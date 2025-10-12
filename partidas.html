@@ -40,35 +40,6 @@
       margin: 20px auto;
       width: fit-content;
     }
-
-    /* Estilo do resultado */
-    .resultado-box {
-      display: flex;
-      background: white;
-      border-radius: 6px;
-      overflow: hidden;
-      height: 40px;
-      align-items: center;
-      justify-content: space-between;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-    .resultado-vermelho {
-      background-color: #b30000;
-      color: white;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .resultado-azul {
-      background-color: #0044cc;
-      color: white;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
   </style>
 </head>
 <body>
@@ -99,27 +70,24 @@
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
   <script>
-    const endpointRanking = "SEU_ENDPOINT_AQUI"; // coloque seu endpoint do Google Sheets
-
-    // Lista fixa das partidas
+    // Lista fixa das partidas com resultados simulados
     const partidas = [
-      { rodada: 1, vermelho: "Brás Cubas", azul: "Dumount" },
-      { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
-      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
-      { rodada: 4, vermelho: "Bras", azul: "Brentani" },
-      { rodada: 5, vermelho: "Capitu", azul: "Marta" },
-      { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
-      { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
-      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
-      { rodada: 9, vermelho: "Marta", azul: "Dumount" },
-      { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
-      { rodada: 11, vermelho: "Marta", azul: "Capitu" },
-      { rodada: 12, vermelho: "Bras", azul: "Brentani" }
+      { rodada: 1, vermelho: "Bras", azul: "Dumount", resultado: "110 x 120" },
+      { rodada: 2, vermelho: "Fe Garay", azul: "Marta", resultado: "95 x 100" },
+      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay", resultado: "120 x 110" },
+      { rodada: 4, vermelho: "Bras", azul: "Brentani", resultado: "105 x 90" },
+      { rodada: 5, vermelho: "Capitu", azul: "Marta", resultado: "115 x 120" },
+      { rodada: 6, vermelho: "Dumount", azul: "Brentani", resultado: "130 x 110" },
+      { rodada: 7, vermelho: "Brentani", azul: "Capitu", resultado: "100 x 105" },
+      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay", resultado: "120 x 95" },
+      { rodada: 9, vermelho: "Marta", azul: "Dumount", resultado: "110 x 130" },
+      { rodada: 10, vermelho: "Fe Garay", azul: "Bras", resultado: "105 x 115" },
+      { rodada: 11, vermelho: "Marta", azul: "Capitu", resultado: "120 x 110" },
+      { rodada: 12, vermelho: "Bras", azul: "Brentani", resultado: "110 x 90" }
     ];
 
     const tbody = document.querySelector("#tabelaPartidas tbody");
 
-    // Preencher tabela com botões
     partidas.forEach((p, i) => {
       const linha = `
         <tr>
@@ -142,47 +110,14 @@
       pageLength: 6
     });
 
-    // Função para revelar resultados puxados do endpoint
-    fetch(endpointRanking)
-      .then(res => res.json())
-      .then(dados => {
-        document.querySelectorAll(".btn-resultado").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const index = btn.getAttribute("data-index");
-            const partida = partidas[index];
-
-            // Pegar a pontuação da equipe vermelha (considerando Vermelha 1 ou 2)
-            const vermelhoData = dados.find(
-              e => e["Nome da Equipe"] === partida.vermelho &&
-                   e["Rodadas"] == partida.rodada &&
-                   e["Aliança"].toLowerCase().includes("vermelha")
-            );
-
-            // Pegar a pontuação da equipe azul (considerando Azul 1 ou 2)
-            const azulData = dados.find(
-              e => e["Nome da Equipe"] === partida.azul &&
-                   e["Rodadas"] == partida.rodada &&
-                   e["Aliança"].toLowerCase().includes("azul")
-            );
-
-            const pontuacaoVermelho = vermelhoData ? vermelhoData["Pontuação Total"] : "-";
-            const pontuacaoAzul = azulData ? azulData["Pontuação Total"] : "-";
-
-            // Criar o box do resultado
-            const box = document.createElement("div");
-            box.classList.add("resultado-box");
-            box.innerHTML = `
-              <div class="resultado-vermelho">${partida.vermelho} ${pontuacaoVermelho}</div>
-              <div class="resultado-azul">${partida.azul} ${pontuacaoAzul}</div>
-            `;
-
-            // Substituir o botão pelo resultado
-            btn.parentElement.innerHTML = "";
-            btn.parentElement.appendChild(box);
-          });
-        });
-      })
-      .catch(err => console.error("Erro ao carregar dados:", err));
+    // Função para revelar o resultado ao clicar
+    document.querySelectorAll(".btn-resultado").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const index = btn.getAttribute("data-index");
+        btn.textContent = partidas[index].resultado;
+        btn.disabled = true;
+      });
+    });
   </script>
 
 </body>

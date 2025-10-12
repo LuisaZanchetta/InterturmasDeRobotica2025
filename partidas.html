@@ -57,8 +57,7 @@
           <th>Rodada</th>
           <th>Equipe Vermelha</th>
           <th>Equipe Azul</th>
-          <th>Pontuação Vermelha</th>
-          <th>Pontuação Azul</th>
+          <th>Resultado</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -70,54 +69,55 @@
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-  <!-- Script principal -->
   <script>
-    const endpointRanking = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
-
-    // Lista fixa das partidas
+    // Lista fixa das partidas com resultados simulados
     const partidas = [
-      { rodada: 1, vermelho: "Bras", azul: "Dumount" },
-      { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
-      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
-      { rodada: 4, vermelho: "Bras", azul: "Brentani" },
-      { rodada: 5, vermelho: "Capitu", azul: "Marta" },
-      { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
-      { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
-      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
-      { rodada: 9, vermelho: "Marta", azul: "Dumount" },
-      { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
-      { rodada: 11, vermelho: "Marta", azul: "Capitu" },
-      { rodada: 12, vermelho: "Bras", azul: "Brentani" }
+      { rodada: 1, vermelho: "Bras", azul: "Dumount", resultado: "110 x 120" },
+      { rodada: 2, vermelho: "Fe Garay", azul: "Marta", resultado: "95 x 100" },
+      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay", resultado: "120 x 110" },
+      { rodada: 4, vermelho: "Bras", azul: "Brentani", resultado: "105 x 90" },
+      { rodada: 5, vermelho: "Capitu", azul: "Marta", resultado: "115 x 120" },
+      { rodada: 6, vermelho: "Dumount", azul: "Brentani", resultado: "130 x 110" },
+      { rodada: 7, vermelho: "Brentani", azul: "Capitu", resultado: "100 x 105" },
+      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay", resultado: "120 x 95" },
+      { rodada: 9, vermelho: "Marta", azul: "Dumount", resultado: "110 x 130" },
+      { rodada: 10, vermelho: "Fe Garay", azul: "Bras", resultado: "105 x 115" },
+      { rodada: 11, vermelho: "Marta", azul: "Capitu", resultado: "120 x 110" },
+      { rodada: 12, vermelho: "Bras", azul: "Brentani", resultado: "110 x 90" }
     ];
 
-    fetch(endpointRanking)
-      .then(response => response.json())
-      .then(dados => {
-        const tbody = document.querySelector("#tabelaPartidas tbody");
-        tbody.innerHTML = "";
+    const tbody = document.querySelector("#tabelaPartidas tbody");
 
-        partidas.forEach((p, i) => {
-          const linhaDados = dados[i]; // pega a linha correspondente da matriz
+    partidas.forEach((p, i) => {
+      const linha = `
+        <tr>
+          <td>${p.rodada}</td>
+          <td class="alianca-vermelha">${p.vermelho}</td>
+          <td class="alianca-azul">${p.azul}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary btn-resultado" data-index="${i}">
+              Ver resultado
+            </button>
+          </td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML("beforeend", linha);
+    });
 
-          const linha = `
-            <tr>
-              <td>${linhaDados[0]}</td> <!-- Rodada -->
-              <td class="alianca-vermelha">${linhaDados[1]}</td> <!-- Equipe Vermelha -->
-              <td class="alianca-azul">${linhaDados[2]}</td> <!-- Equipe Azul -->
-              <td>${linhaDados[3] && linhaDados[3] !== "-" ? linhaDados[3] : "-"}</td> <!-- Pontuação Vermelha -->
-              <td>${linhaDados[4] && linhaDados[4] !== "-" ? linhaDados[4] : "-"}</td> <!-- Pontuação Azul -->
-            </tr>
-          `;
-          tbody.insertAdjacentHTML("beforeend", linha);
-        });
+    // Ativar DataTable
+    $("#tabelaPartidas").DataTable({
+      language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
+      pageLength: 6
+    });
 
-        // Ativar DataTable
-        $("#tabelaPartidas").DataTable({
-          language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
-          pageLength: 6
-        });
-      })
-      .catch(err => console.error("Erro ao carregar dados:", err));
+    // Função para revelar o resultado ao clicar
+    document.querySelectorAll(".btn-resultado").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const index = btn.getAttribute("data-index");
+        btn.textContent = partidas[index].resultado;
+        btn.disabled = true;
+      });
+    });
   </script>
 
 </body>

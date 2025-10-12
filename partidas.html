@@ -35,12 +35,21 @@
       color: #0044cc;
       font-weight: 600;
     }
+    .btn-voltar {
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
+    }
   </style>
 </head>
 <body>
 
   <h1>🤖 Partidas de Robótica</h1>
 
+  <!-- 🔹 Botão para voltar ao ranking -->
+  <a href="index.html" class="btn btn-primary btn-voltar">⬅️ Voltar ao Ranking</a>
+
+  <!-- 🔹 Tabela das partidas -->
   <div class="table-container">
     <h2>🧩 Lista de Partidas</h2>
     <table id="tabelaPartidas" class="table table-striped">
@@ -57,7 +66,63 @@
     </table>
   </div>
 
-  <!-- Bibliotecas JS -->
+  <!-- 🔹 Bibliotecas JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.boo
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+  <!-- 🔹 Script principal -->
+  <script>
+    // Endpoint (mesmo do ranking)
+    const endpointRanking = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
+
+    // 🔹 Lista fixa das partidas
+    const partidas = [
+      { rodada: 1, vermelho: "Bras", azul: "Dumount" },
+      { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
+      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
+      { rodada: 4, vermelho: "Bras", azul: "Brentani" },
+      { rodada: 5, vermelho: "Capitu", azul: "Marta" },
+      { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
+      { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
+      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
+      { rodada: 9, vermelho: "Marta", azul: "Dumount" },
+      { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
+      { rodada: 11, vermelho: "Marta", azul: "Capitu" },
+      { rodada: 12, vermelho: "Bras", azul: "Brentani" }
+    ];
+
+    // 🔹 Buscar pontuações e preencher tabela
+    fetch(endpointRanking)
+      .then(response => response.json())
+      .then(dados => {
+        const tbody = document.querySelector("#tabelaPartidas tbody");
+        tbody.innerHTML = "";
+
+        partidas.forEach(p => {
+          const vermelhoData = dados.find(e => e["Nome da Equipe"] === p.vermelho);
+          const azulData = dados.find(e => e["Nome da Equipe"] === p.azul);
+
+          const linha = `
+            <tr>
+              <td>${p.rodada}</td>
+              <td class="alianca-vermelha">${p.vermelho}</td>
+              <td class="alianca-azul">${p.azul}</td>
+              <td>${vermelhoData ? vermelhoData["Pontuação Total"] : "-"}</td>
+              <td>${azulData ? azulData["Pontuação Total"] : "-"}</td>
+            </tr>
+          `;
+          tbody.insertAdjacentHTML("beforeend", linha);
+        });
+
+        // Ativar DataTable
+        $("#tabelaPartidas").DataTable({
+          language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
+          pageLength: 6
+        });
+      })
+      .catch(err => console.error("Erro ao carregar dados:", err));
+  </script>
+
+</body>
+</html>

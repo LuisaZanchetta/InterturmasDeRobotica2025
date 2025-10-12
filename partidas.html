@@ -90,38 +90,22 @@
       { rodada: 12, vermelho: "Bras", azul: "Brentani" }
     ];
 
-    function normalizar(txt) {
-      return (txt || "").toLowerCase().trim();
-    }
-
     fetch(endpointRanking)
       .then(response => response.json())
       .then(dados => {
         const tbody = document.querySelector("#tabelaPartidas tbody");
         tbody.innerHTML = "";
 
-        partidas.forEach(p => {
-          // Buscar pontuação da equipe vermelha na rodada correta
-          const vermelhoData = dados.find(e =>
-            normalizar(e["Nome da Equipe"]) === normalizar(p.vermelho) &&
-            normalizar(e["Rodada"]) === normalizar(p.rodada) &&
-            normalizar(e["Aliança"]).includes("vermelha")
-          );
-
-          // Buscar pontuação da equipe azul na rodada correta
-          const azulData = dados.find(e =>
-            normalizar(e["Nome da Equipe"]) === normalizar(p.azul) &&
-            normalizar(e["Rodada"]) === normalizar(p.rodada) &&
-            normalizar(e["Aliança"]).includes("azul")
-          );
+        partidas.forEach((p, i) => {
+          const linhaDados = dados[i]; // pega a linha correspondente da matriz
 
           const linha = `
             <tr>
-              <td>${p.rodada}</td>
-              <td class="alianca-vermelha">${p.vermelho}</td>
-              <td class="alianca-azul">${p.azul}</td>
-              <td>${vermelhoData ? vermelhoData["Pontuação"] : "-"}</td>
-              <td>${azulData ? azulData["Pontuação"] : "-"}</td>
+              <td>${linhaDados[0]}</td> <!-- Rodada -->
+              <td class="alianca-vermelha">${linhaDados[1]}</td> <!-- Equipe Vermelha -->
+              <td class="alianca-azul">${linhaDados[2]}</td> <!-- Equipe Azul -->
+              <td>${linhaDados[3] && linhaDados[3] !== "-" ? linhaDados[3] : "-"}</td> <!-- Pontuação Vermelha -->
+              <td>${linhaDados[4] && linhaDados[4] !== "-" ? linhaDados[4] : "-"}</td> <!-- Pontuação Azul -->
             </tr>
           `;
           tbody.insertAdjacentHTML("beforeend", linha);

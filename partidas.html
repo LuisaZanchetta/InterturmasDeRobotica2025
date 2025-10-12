@@ -5,15 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Partidas de Robótica</title>
 
+  <!-- Bootstrap e DataTables -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 
   <style>
-    body { background: #f7f9fc; font-family: "Segoe UI", sans-serif; }
-    h1, h2 { text-align: center; margin-top: 20px; color: #0d6efd; }
-    .table-container { margin: 40px auto; width: 90%; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .alianca-vermelha { color: #b30000; font-weight: 600; }
-    .alianca-azul { color: #0044cc; font-weight: 600; }
+    body {
+      background: #f7f9fc;
+      font-family: "Segoe UI", sans-serif;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-top: 20px;
+      color: #0d6efd;
+    }
+    .table-container {
+      margin: 40px auto;
+      width: 90%;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .alianca-vermelha {
+      color: #b30000;
+      font-weight: 600;
+    }
+    .alianca-azul {
+      color: #0044cc;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -36,49 +57,7 @@
     </table>
   </div>
 
+  <!-- Bibliotecas JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
-  <script>
-    const url = "SEU_LINK_DO_GOOGLE_SCRIPT"; // Pode ser o mesmo ou outro endpoint
-
-    async function carregarPartidas() {
-      try {
-        const resposta = await fetch(url);
-        const dados = await resposta.json();
-
-        const corpo = document.querySelector("#tabelaPartidas tbody");
-        corpo.innerHTML = "";
-
-        dados.forEach(linha => {
-          const pontVermelha = parseFloat(linha["Pontuação Vermelha"]) || 0;
-          const pontAzul = parseFloat(linha["Pontuação Azul"]) || 0;
-
-          corpo.innerHTML += `
-            <tr>
-              <td>${linha["Rodada"]}</td>
-              <td class="alianca-vermelha">${linha["Vermelha"]}</td>
-              <td class="alianca-azul">${linha["Azul"]}</td>
-              <td>${pontVermelha}</td>
-              <td>${pontAzul}</td>
-            </tr>
-          `;
-        });
-
-        $('#tabelaPartidas').DataTable({
-          order: [[0, 'asc']],
-          language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
-        });
-
-      } catch (erro) {
-        console.error("Erro ao carregar partidas:", erro);
-        alert("Não foi possível carregar as partidas.");
-      }
-    }
-
-    carregarPartidas();
-  </script>
-
-</body>
-</html>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.boo

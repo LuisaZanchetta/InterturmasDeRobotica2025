@@ -95,26 +95,23 @@
         }));
 
         // --- TABELA DE RODADAS ---
-        rodadas.forEach(r => {
-  // Define cor do ícone baseado na aliança
-  let corAlianca = "";
-  if (r.alianca.toLowerCase().includes("vermelha")) corAlianca = "red";
-  else if (r.alianca.toLowerCase().includes("azul")) corAlianca = "blue";
-
-  // Cria uma bolinha colorida antes do nome da aliança
-  const aliancaComIcone = corAlianca 
-    ? `<span style="display:inline-block;width:12px;height:12px;background-color:${corAlianca};border-radius:50%;margin-right:5px;"></span>${r.alianca}`
-    : r.alianca;
-
+const corpoRodadas = document.querySelector("#tabelaRodadas tbody");
+rodadas.forEach(r => {
+  const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
+    ? "alianca-vermelha"
+    : r.alianca.toLowerCase().includes("azul")
+      ? "alianca-azul"
+      : "";
   corpoRodadas.innerHTML += `
-    <tr>
+    <tr class="${classeAlianca}">
       <td>${r.equipe}</td>
       <td>${r.rodada}</td>
-      <td>${aliancaComIcone}</td>
+      <td>${r.alianca}</td>
       <td>${r.pontuacao}</td>
     </tr>
   `;
 });
+
 
 
         // --- RANKING GERAL (maior pontuação por equipe) ---

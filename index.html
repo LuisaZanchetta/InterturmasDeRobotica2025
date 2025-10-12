@@ -88,9 +88,9 @@
 
         // Extrai e renomeia colunas relevantes
         const rodadas = dados.map(linha => ({
-          equipe: linha["Nome da Equipe"],
+          equipe: linha["Equipe"],
           rodada: linha["Rodadas"],
-          alianca: (linha["Aliança"] || "").trim(),
+          alianca: (linha["Alianca"] || "").trim(),
           pontuacao: parseFloat(linha["Pontuação Total"]) || 0
         }));
 

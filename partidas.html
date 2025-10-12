@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Partidas de Robótica</title>
 
-  <!-- Bootstrap & DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
+  <!-- Bootstrap e DataTables -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 
   <style>
     body {
@@ -40,6 +40,8 @@
       margin: 20px auto;
       width: fit-content;
     }
+
+    /* Estilo do resultado */
     .resultado-box {
       display: flex;
       background: white;
@@ -72,6 +74,7 @@
 <body>
 
   <h1>🤖 Partidas de Robótica</h1>
+
   <a href="index.html" class="btn btn-primary btn-voltar">⬅️ Voltar ao Ranking</a>
 
   <div class="table-container">
@@ -80,8 +83,8 @@
       <thead>
         <tr>
           <th>Rodada</th>
-          <th>Vermelha</th>
-          <th>Azul</th>
+          <th>Equipe Vermelha</th>
+          <th>Equipe Azul</th>
           <th>Resultado</th>
         </tr>
       </thead>
@@ -95,58 +98,82 @@
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
   <script>
-    const endpointMapa = "https://script.google.com/macros/s/AKfycbze6c1DfwKS55nIfFYGS4F9H-JwHOQ--SWWlPng2t7-hBPjutkPDIetCeOx3jAHlbCMxw/exec";
+    // Endpoint do Google Sheets Mapa de Rodadas
+    const endpointMapa = "https://script.google.com/macros/s/AKfycbw9vyf7Dld3DHZXq2ALjvNzjIsrtRU-A-c6vaDqSN88ZwwqBjsvBkL8fi6rD7gtoHlt1Q/exec";
 
+    // Lista fixa das partidas
+    const partidas = [
+      { rodada: 1, vermelho: "Brás Cubas", azul: "Dumount" },
+      { rodada: 2, vermelho: "Fe Garay", azul: "Marta" },
+      { rodada: 3, vermelho: "Capitu", azul: "Fe Garay" },
+      { rodada: 4, vermelho: "Bras", azul: "Brentani" },
+      { rodada: 5, vermelho: "Capitu", azul: "Marta" },
+      { rodada: 6, vermelho: "Dumount", azul: "Brentani" },
+      { rodada: 7, vermelho: "Brentani", azul: "Capitu" },
+      { rodada: 8, vermelho: "Dumount", azul: "Fe Garay" },
+      { rodada: 9, vermelho: "Marta", azul: "Dumount" },
+      { rodada: 10, vermelho: "Fe Garay", azul: "Bras" },
+      { rodada: 11, vermelho: "Marta", azul: "Capitu" },
+      { rodada: 12, vermelho: "Bras", azul: "Brentani" }
+    ];
+
+    const tbody = document.querySelector("#tabelaPartidas tbody");
+
+    // Preencher tabela com botões
+    partidas.forEach((p, i) => {
+      const linha = `
+        <tr>
+          <td>${p.rodada}</td>
+          <td class="alianca-vermelha">${p.vermelho}</td>
+          <td class="alianca-azul">${p.azul}</td>
+          <td>
+            <button class="btn btn-sm btn-secondary btn-resultado" data-index="${i}">
+              Ver resultado
+            </button>
+          </td>
+        </tr>
+      `;
+      tbody.insertAdjacentHTML("beforeend", linha);
+    });
+
+    // Ativar DataTable
+    $("#tabelaPartidas").DataTable({
+      language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
+      pageLength: 6
+    });
+
+    // Buscar dados do Mapa de Rodadas
     fetch(endpointMapa)
       .then(res => res.json())
-      .then(mapa => {
-        const tbody = document.querySelector("#tabelaPartidas tbody");
-        tbody.innerHTML = "";
+      .then(dados => {
 
-        mapa.forEach((row, i) => {
-          const rodada = row["Rodada"] ?? "";
-          const vermelha = row["Vermelha"] ?? "";
-          const azul = row["Azul"] ?? "";
-          const resVerm = row["Resultado Vermelha"] ?? "";
-          const resAzul = row["Resultado Azul"] ?? "";
+        document.querySelectorAll(".btn-resultado").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const index = btn.getAttribute("data-index");
+            const partida = partidas[index];
 
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${rodada}</td>
-            <td class="alianca-vermelha">${vermelha}</td>
-            <td class="alianca-azul">${azul}</td>
-            <td>
-              <button class="btn btn-sm btn-secondary" data-i="${i}">
-                Ver resultado
-              </button>
-              <div id="box-${i}" style="display:none; margin-top:8px;">
-                <div class="resultado-box">
-                  <div class="resultado-vermelho">${vermelha} ${resVerm}</div>
-                  <div class="resultado-azul">${azul} ${resAzul}</div>
-                </div>
-              </div>
-            </td>
-          `;
-          tbody.appendChild(tr);
+            // Encontrar pontuação de cada equipe no Mapa de Rodadas
+            const mapa = dados.find(e => parseInt(e["Rodada"]) === partida.rodada);
 
-          tr.querySelector("button").addEventListener("click", (e) => {
-            const idx = e.currentTarget.getAttribute("data-i");
-            const box = document.getElementById("box-" + idx);
-            box.style.display = box.style.display === "none" ? "block" : "none";
+            const pontuacaoVermelho = mapa ? mapa["Resultado Vermelha"] : "-";
+            const pontuacaoAzul = mapa ? mapa["Resultado Azul"] : "-";
+
+            // Criar box do resultado
+            const box = document.createElement("div");
+            box.classList.add("resultado-box");
+            box.innerHTML = `
+              <div class="resultado-vermelho">${partida.vermelho} ${pontuacaoVermelho}</div>
+              <div class="resultado-azul">${partida.azul} ${pontuacaoAzul}</div>
+            `;
+
+            // Substituir botão pelo resultado
+            btn.parentElement.innerHTML = "";
+            btn.parentElement.appendChild(box);
           });
         });
 
-        // Inicializa DataTable
-        $("#tabelaPartidas").DataTable({
-          language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
-          pageLength: 6
-        });
       })
-      .catch(err => {
-        console.error("Erro ao carregar mapa:", err);
-        const tbody = document.querySelector("#tabelaPartidas tbody");
-        tbody.innerHTML = `<tr><td colspan="4">Erro ao carregar dados</td></tr>`;
-      });
+      .catch(err => console.error("Erro ao carregar dados do Mapa de Rodadas:", err));
   </script>
 
 </body>

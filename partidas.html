@@ -104,20 +104,28 @@ async function carregarPartidas() {
     tbody.innerHTML = ""; // limpa a tabela
 
     partidas.forEach(p => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${p.Rodada}</td>
-          <td class="alianca-vermelha">${p.Vermelha}</td>
-          <td class="alianca-azul">${p.Azul}</td>
-          <td>
-            <div class="resultado-box">
-              <span class="resultado-vermelho">${p.resultadoVermelha}</span>
-              <span class="resultado-azul">${p.resultadoAzul}</span>
-            </div>
-          </td>
-        </tr>
-      `;
-    });
+  // Corrige possíveis espaços nos nomes das colunas
+  const rodada = (p.Rodada || p["Rodada "] || "").toString().trim();
+  const vermelha = (p.Vermelha || p["Vermelha "] || "").toString().trim();
+  const azul = (p.Azul || p["Azul "] || "").toString().trim();
+  const resultadoVermelha = (p.resultadoVermelha || p["Resultado Vermelha"] || "").toString().trim();
+  const resultadoAzul = (p.resultadoAzul || p["Resultado Azul"] || "").toString().trim();
+
+  tbody.innerHTML += `
+    <tr>
+      <td>${rodada}</td>
+      <td class="alianca-vermelha">${vermelha}</td>
+      <td class="alianca-azul">${azul}</td>
+      <td>
+        <div class="resultado-box">
+          <span class="resultado-vermelho">${resultadoVermelha}</span>
+          <span class="resultado-azul">${resultadoAzul}</span>
+        </div>
+      </td>
+    </tr>
+  `;
+});
+
 
     $('#tabelaPartidas').DataTable({
       order: [[0, 'asc']],

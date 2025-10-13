@@ -86,39 +86,42 @@
   const urlMapa = 'https://script.google.com/macros/s/AKfycbyZOJA3sZzcYhfomwe9--Eq-z_CXVk1Oh6JSjqFPUeSNu5VBR_N0u9h6KwDbbBaAggGOg/exec';
 
   async function carregarPartidas() {
-    try {
-      const resposta = await fetch(urlMapa);
-      const dados = await resposta.json();
+  try {
+    const resposta = await fetch(urlMapa);
+    const dados = await resposta.json();
 
-      const tbody = document.querySelector("#tabelaPartidas tbody");
-      tbody.innerHTML = ""; // limpa caso já tenha algo
+    console.log(dados); // <-- para depuração
 
-      dados.forEach(p => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${p.Rodada}</td>
-            <td class="alianca-vermelha">${p.Vermelha}</td>
-            <td class="alianca-azul">${p.Azul}</td>
-            <td>
-              <div class="resultado-box">
-                <span class="resultado-vermelho">${p["Resultado Vermelha"]}</span>
-                <span class="resultado-azul">${p["Resultado Azul"]}</span>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
+    const tbody = document.querySelector("#tabelaPartidas tbody");
+    tbody.innerHTML = "";
 
-      $('#tabelaPartidas').DataTable({
-        order: [[0, 'asc']],
-        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
-      });
+    dados.forEach(p => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${p.Rodada}</td>
+          <td class="alianca-vermelha">${p.Vermelha}</td>
+          <td class="alianca-azul">${p.Azul}</td>
+          <td>
+            <div class="resultado-box">
+              <span class="resultado-vermelho">${p["Resultado Vermelha"]}</span>
+              <span class="resultado-azul">${p["Resultado Azul"]}</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
 
-    } catch (erro) {
-      console.error("Erro ao carregar dados do Mapa_Rodadas:", erro);
-      alert("Erro ao carregar dados. Verifique o link da planilha.");
-    }
+    $('#tabelaPartidas').DataTable({
+      order: [[0, 'asc']],
+      language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+    });
+
+  } catch (erro) {
+    console.error("Erro ao carregar dados do Mapa_Rodadas:", erro);
+    alert("Erro ao carregar dados. Verifique o link da planilha.");
   }
+}
+
 
   carregarPartidas();
 </script>

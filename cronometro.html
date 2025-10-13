@@ -15,20 +15,39 @@
       background-color: #f0f0f0;
       text-align: center;
     }
+
     #timer {
-      font-size: 5em;
+      font-size: 10em; /* números grandes */
+      font-weight: bold;
       margin-bottom: 10px;
+      color: #333;
     }
+
     #countdown {
-      font-size: 3em;
+      font-size: 6em; /* contagem inicial grande */
+      font-weight: bold;
       margin-bottom: 20px;
       color: #ff4444;
     }
+
     button {
-      padding: 10px 20px;
-      font-size: 1.2em;
+      padding: 12px 25px;
+      font-size: 1.5em;
       margin: 5px;
       cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
@@ -58,7 +77,7 @@
     const beep = document.getElementById('beep');
     const alarm = document.getElementById('alarm');
 
-    // Função para iniciar a contagem inicial 3-2-1-Minds
+    // Contagem inicial 3-2-1-Minds
     function startCountdown() {
       if (timerInterval) return; // evita reiniciar o timer se já estiver rodando
       countdownEl.textContent = "3";
@@ -82,7 +101,7 @@
       }, 1000);
     }
 
-    // Função principal do timer
+    // Timer principal
     function startTimer() {
       updateDisplay(remaining);
       timerInterval = setInterval(() => {
@@ -107,12 +126,12 @@
       timerEl.textContent = `${min}:${sec}`;
     }
 
-    // Pausar ou continuar
+    // Pausar/continuar
     function pauseTimer() {
       isPaused = !isPaused;
     }
 
-    // Resetar o timer
+    // Resetar timer
     function resetTimer() {
       clearInterval(timerInterval);
       clearInterval(countdownInterval);

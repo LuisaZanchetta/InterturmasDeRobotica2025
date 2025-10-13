@@ -17,14 +17,14 @@
     }
 
     #timer {
-      font-size: 10em; /* números grandes */
+      font-size: 15em; /* números grandes */
       font-weight: bold;
       margin-bottom: 10px;
       color: #333;
     }
 
     #countdown {
-      font-size: 6em; /* contagem inicial grande */
+      font-size: 10em; /* contagem inicial grande */
       font-weight: bold;
       margin-bottom: 20px;
       color: #ff4444;
@@ -90,7 +90,7 @@
           countdownEl.textContent = count;
           beep.play();
         } else {
-          countdownEl.textContent = "Minds!";
+          countdownEl.textContent = "Motion!";
           beep.play();
           clearInterval(countdownInterval);
           setTimeout(() => {

@@ -82,61 +82,50 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-  <script>
-  const urlMapa = 'https://script.google.com/macros/s/AKfycbzs6Q05gx-yeWDAwyzLNwe-wBubUXLJBqBCmtF0oDd_f2o8znNcxcPJDSejKeTY8qsz5g/exec';
+ <script>
+  const urlMapa = 'https://script.google.com/macros/s/AKfycbx4tWBplA7-IkbktAYu01G7_KwvaQLJd717mV6cecpTZMCHrQFO6avk5RODK-bC_4-eJA/exec';
 
-async function carregarPartidas() {
-  try {
-    const resposta = await fetch(urlMapa);
-    const dados = await resposta.json();
+  async function carregarPartidas() {
+    try {
+      const resposta = await fetch(urlMapa);
+      const dados = await resposta.json();
 
-    // Mapeia os dados da planilha
-    const partidas = dados.map(p => ({
-      rodada: p.Rodada,
-      vermelha: p.Vermelha,
-      azul: p.Azul,
-      resultadoVermelha: p["Resultado Vermelha"],
-      resultadoAzul: p["Resultado Azul"]
-    }));
+      const tbody = document.querySelector("#tabelaPartidas tbody");
+      tbody.innerHTML = ""; // limpa a tabela
 
-    // --- TABELA DE PARTIDAS ---
-    const tbody = document.querySelector("#tabelaPartidas tbody");
-    tbody.innerHTML = ""; // limpa a tabela
+      dados.forEach(p => {
+        // Corrige possíveis diferenças de espaço ou acentuação
+        const rodada = (p["Rodada"] || p["Rodada "] || "").toString().trim();
+        const vermelha = (p["Vermelha"] || p["Vermelha "] || "").toString().trim();
+        const azul = (p["Azul"] || p["Azul "] || "").toString().trim();
+        const resultadoVermelha = (p["Resultado Vermelha"] || p["Resultado Vermelha "] || "").toString().trim();
+        const resultadoAzul = (p["Resultado Azul"] || p["Resultado Azul "] || "").toString().trim();
 
-    partidas.forEach(p => {
-  // Corrige possíveis espaços nos nomes das colunas
-  const rodada = (p.Rodada || p["Rodada "] || "").toString().trim();
-  const vermelha = (p.Vermelha || p["Vermelha "] || "").toString().trim();
-  const azul = (p.Azul || p["Azul "] || "").toString().trim();
-  const resultadoVermelha = (p.resultadoVermelha || p["Resultado Vermelha"] || "").toString().trim();
-  const resultadoAzul = (p.resultadoAzul || p["Resultado Azul"] || "").toString().trim();
+        tbody.innerHTML += `
+          <tr>
+            <td>${rodada}</td>
+            <td class="alianca-vermelha">${vermelha}</td>
+            <td class="alianca-azul">${azul}</td>
+            <td>
+              <div class="resultado-box">
+                <span class="resultado-vermelho">${resultadoVermelha}</span>
+                <span class="resultado-azul">${resultadoAzul}</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
 
-  tbody.innerHTML += `
-    <tr>
-      <td>${rodada}</td>
-      <td class="alianca-vermelha">${vermelha}</td>
-      <td class="alianca-azul">${azul}</td>
-      <td>
-        <div class="resultado-box">
-          <span class="resultado-vermelho">${resultadoVermelha}</span>
-          <span class="resultado-azul">${resultadoAzul}</span>
-        </div>
-      </td>
-    </tr>
-  `;
-});
+      $('#tabelaPartidas').DataTable({
+        order: [[0, 'asc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+      });
 
-
-    $('#tabelaPartidas').DataTable({
-      order: [[0, 'asc']],
-      language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
-    });
-
-  } catch (erro) {
-    console.error("Erro ao carregar dados do Mapa_Rodadas:", erro);
-    alert("Erro ao carregar dados. Verifique o link da planilha.");
+    } catch (erro) {
+      console.error("Erro ao carregar dados do Mapa de Rodadas:", erro);
+      alert("Erro ao carregar dados. Verifique o link da planilha.");
+    }
   }
-}
 
   carregarPartidas();
 </script>

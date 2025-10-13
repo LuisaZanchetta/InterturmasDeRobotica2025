@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partidas - Interturmas de Robótica 2025</title>
+
+  <!-- Importa o Bootstrap e DataTables -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+  <style>
+    body {
+      background: #f7f9fc;
+      font-family: "Segoe UI", sans-serif;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-top: 20px;
+      color: #0d6efd;
+    }
+    .table-container {
+      margin: 40px auto;
+      width: 90%;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .alianca-vermelha {
+      background-color: #ffe5e5 !important;
+      color: #b30000 !important;
+      font-weight: 600;
+    }
+    .alianca-azul {
+      background-color: #e5f0ff !important;
+      color: #0044cc !important;
+      font-weight: 600;
+    }
+    .vencedora {
+      border: 2px solid #28a745 !important;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+    }
+    .resultado-box {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+    .resultado-vermelho {
+      color: #b30000;
+    }
+    .resultado-azul {
+      color: #0044cc;
+    }
+    .btn-voltar {
+      display: block;
+      margin: 20px auto;
+      width: fit-content;
+    }
+    .resultado-container {
+      text-align: center;
+    }
+    .btn-mostrar {
+      margin: 5px auto;
+      display: block;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .btn-mostrar:hover {
+      background-color: #0b5ed7;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🤖 Partidas Interturmas de Robótica 2025</h1>
+<div class="text-center my-3">
+  <a href="index.html" class="btn btn-primary btn-voltar">Voltar ao Ranking</a>
+</div>
+
+<div class="table-container">
+  <h2>🧩 Partidas</h2>
+  <table id="tabelaPartidas" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Rodada</th>
+        <th>Equipe Vermelha</th>
+        <th>Equipe Azul</th>
+        <th>Resultado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<!-- Bibliotecas JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+  const urlMapa = 'https://script.google.com/macros/s/AKfycbxRj2EQVr7rwrB0Pid9LETgBHDH5VTYYUprPoHab--EuYgI1KypAnJbvjayUeN_77gR/exec';
+
+  async function carregarPartidas() {
+    try {
+      const resposta = await fetch(urlMapa);
+      const dados = await resposta.json();
+
+      const tbody = document.querySelector("#tabelaPartidas tbody");
+      tbody.innerHTML = ""; // limpa a tabela
+
+      dados.forEach(p => {
+        // Corrige possíveis diferenças de espaço ou acentuação
+        const rodada = (p["Rodada"] || p["Rodada "] || "").toString().trim();
+        const vermelha = (p["Vermelha"] || p["Vermelha "] || "").toString().trim();
+        const azul = (p["Azul"] || p["Azul "] || "").toString().trim();
+        const resultadoVermelha = parseInt(p["Resultado Vermelha"] || p["Resultado Vermelha "] || "0");
+        const resultadoAzul = parseInt(p["Resultado Azul"] || p["Resultado Azul "] || "0");
+
+        tbody.innerHTML += `
+          <tr>
+            <td>${rodada}</td>
+            <td class="alianca-vermelha ${resultadoVermelha > resultadoAzul ? 'vencedora' : ''}">${vermelha}</td>
+            <td class="alianca-azul ${resultadoAzul > resultadoVermelha ? 'vencedora' : ''}">${azul}</td>
+            <td class="resultado-container">
+              <button class="btn-mostrar" onclick="mostrarResultado(this)">Mostrar Pontuações</button>
+              <div class="resultado-box" style="display: none;">
+                <span class="resultado-vermelho">${resultadoVermelha}</span>
+                <span class="resultado-azul">${resultadoAzul}</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      $('#tabelaPartidas').DataTable({
+        order: [[0, 'asc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+      });
+
+    } catch (erro) {
+      console.error("Erro ao carregar dados do Mapa de Rodadas:", erro);
+      alert("Erro ao carregar dados. Verifique o link da planilha.");
+    }
+  }
+
+  function mostrarResultado(botao) {
+    const box = botao.nextElementSibling;
+    if (box.style.display === "none") {
+      box.style.display = "flex";
+      botao.textContent = "Ocultar Pontuações";
+    } else {
+      box.style.display = "none";
+      botao.textContent = "Mostrar Pontuações";
+    }
+  }
+
+  carregarPartidas();
+</script>
+
+</body>
+</html>

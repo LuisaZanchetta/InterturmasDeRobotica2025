@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer 2m30s com Contagem Inicial</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      text-align: center;
+    }
+    #timer {
+      font-size: 5em;
+      margin-bottom: 10px;
+    }
+    #countdown {
+      font-size: 3em;
+      margin-bottom: 20px;
+      color: #ff4444;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1.2em;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="countdown"></div>
+  <div id="timer">02:30</div>
+  <div>
+    <button onclick="startCountdown()">Iniciar</button>
+    <button onclick="pauseTimer()">Pausar</button>
+    <button onclick="resetTimer()">Resetar</button>
+  </div>
+
+  <!-- Sons -->
+  <audio id="beep" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
+  <audio id="alarm" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+
+  <script>
+    const totalSeconds = 150; // 2 minutos 30 segundos
+    let timerInterval = null;
+    let remaining = totalSeconds;
+    let countdownInterval = null;
+    let isPaused = false;
+
+    const countdownEl = document.getElementById('countdown');
+    const timerEl = document.getElementById('timer');
+    const beep = document.getElementById('beep');
+    const alarm = document.getElementById('alarm');
+
+    // Função para iniciar a contagem inicial 3-2-1-Minds
+    function startCountdown() {
+      if (timerInterval) return; // evita reiniciar o timer se já estiver rodando
+      countdownEl.textContent = "3";
+      let count = 3;
+      beep.play();
+
+      countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownEl.textContent = count;
+          beep.play();
+        } else {
+          countdownEl.textContent = "Minds!";
+          beep.play();
+          clearInterval(countdownInterval);
+          setTimeout(() => {
+            countdownEl.textContent = "";
+            startTimer();
+          }, 1000);
+        }
+      }, 1000);
+    }
+
+    // Função principal do timer
+    function startTimer() {
+      updateDisplay(remaining);
+      timerInterval = setInterval(() => {
+        if (!isPaused) {
+          remaining--;
+          if (remaining < 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alarm.play();
+            alert("Tempo encerrado!");
+            return;
+          }
+          updateDisplay(remaining);
+        }
+      }, 1000);
+    }
+
+    // Atualiza o display do timer
+    function updateDisplay(seconds) {
+      const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const sec = String(seconds % 60).padStart(2, '0');
+      timerEl.textContent = `${min}:${sec}`;
+    }
+
+    // Pausar ou continuar
+    function pauseTimer() {
+      isPaused = !isPaused;
+    }
+
+    // Resetar o timer
+    function resetTimer() {
+      clearInterval(timerInterval);
+      clearInterval(countdownInterval);
+      timerInterval = null;
+      countdownInterval = null;
+      remaining = totalSeconds;
+      isPaused = false;
+      countdownEl.textContent = "";
+      updateDisplay(remaining);
+    }
+  </script>
+
+</body>
+</html>

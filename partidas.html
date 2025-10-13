@@ -92,9 +92,9 @@ async function carregarPartidas() {
 
     // Mapeia os dados da planilha
     const partidas = dados.map(p => ({
-      rodada: p.Rodada,
-      vermelha: p.Vermelha,
-      azul: p.Azul,
+      rodada: p.["Rodada"],
+      vermelha: p.["Vermelha"],
+      azul: p.["Azul"],
       resultadoVermelha: p["Resultado Vermelha"],
       resultadoAzul: p["Resultado Azul"]
     }));

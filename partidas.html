@@ -85,26 +85,34 @@
   <script>
   const urlMapa = 'https://script.google.com/macros/s/AKfycbyZOJA3sZzcYhfomwe9--Eq-z_CXVk1Oh6JSjqFPUeSNu5VBR_N0u9h6KwDbbBaAggGOg/exec';
 
-  async function carregarPartidas() {
+async function carregarPartidas() {
   try {
     const resposta = await fetch(urlMapa);
     const dados = await resposta.json();
 
-    console.log(dados); // <-- para depuração
+    // Mapeia os dados da planilha
+    const partidas = dados.map(p => ({
+      rodada: p.Rodada,
+      vermelha: p.Vermelha,
+      azul: p.Azul,
+      resultadoVermelha: p["Resultado Vermelha"],
+      resultadoAzul: p["Resultado Azul"]
+    }));
 
+    // --- TABELA DE PARTIDAS ---
     const tbody = document.querySelector("#tabelaPartidas tbody");
-    tbody.innerHTML = "";
+    tbody.innerHTML = ""; // limpa a tabela
 
-    dados.forEach(p => {
+    partidas.forEach(p => {
       tbody.innerHTML += `
         <tr>
-          <td>${p.Rodada}</td>
-          <td class="alianca-vermelha">${p.Vermelha}</td>
-          <td class="alianca-azul">${p.Azul}</td>
+          <td>${p.rodada}</td>
+          <td class="alianca-vermelha">${p.vermelha}</td>
+          <td class="alianca-azul">${p.azul}</td>
           <td>
             <div class="resultado-box">
-              <span class="resultado-vermelho">${p["Resultado Vermelha"]}</span>
-              <span class="resultado-azul">${p["Resultado Azul"]}</span>
+              <span class="resultado-vermelho">${p.resultadoVermelha}</span>
+              <span class="resultado-azul">${p.resultadoAzul}</span>
             </div>
           </td>
         </tr>
@@ -122,7 +130,6 @@
   }
 }
 
-
   carregarPartidas();
-</script>
+
 

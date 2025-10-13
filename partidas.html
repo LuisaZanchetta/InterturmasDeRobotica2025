@@ -37,10 +37,15 @@
       color: #0044cc !important;
       font-weight: 600;
     }
+    .vencedora {
+      border: 2px solid #28a745 !important;
+      box-shadow: 0 0 8px rgba(40, 167, 69, 0.4);
+    }
     .resultado-box {
       display: flex;
       justify-content: space-between;
       font-weight: bold;
+      margin-top: 8px;
     }
     .resultado-vermelho {
       color: #b30000;
@@ -52,6 +57,23 @@
       display: block;
       margin: 20px auto;
       width: fit-content;
+    }
+    .resultado-container {
+      text-align: center;
+    }
+    .btn-mostrar {
+      margin: 5px auto;
+      display: block;
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+    .btn-mostrar:hover {
+      background-color: #0b5ed7;
     }
   </style>
 </head>
@@ -82,7 +104,7 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
- <script>
+<script>
   const urlMapa = 'https://script.google.com/macros/s/AKfycbx4tWBplA7-IkbktAYu01G7_KwvaQLJd717mV6cecpTZMCHrQFO6avk5RODK-bC_4-eJA/exec';
 
   async function carregarPartidas() {
@@ -94,43 +116,27 @@
       tbody.innerHTML = ""; // limpa a tabela
 
       dados.forEach(p => {
-        const rodada = (p["Rodada"] || "").toString().trim();
-        const vermelha = (p["Vermelha"] || "").toString().trim();
-        const azul = (p["Azul"] || "").toString().trim();
-        const resultadoVermelha = parseFloat(p["Resultado Vermelha"]) || 0;
-        const resultadoAzul = parseFloat(p["Resultado Azul"]) || 0;
+        // Corrige possíveis diferenças de espaço ou acentuação
+        const rodada = (p["Rodada"] || p["Rodada "] || "").toString().trim();
+        const vermelha = (p["Vermelha"] || p["Vermelha "] || "").toString().trim();
+        const azul = (p["Azul"] || p["Azul "] || "").toString().trim();
+        const resultadoVermelha = parseInt(p["Resultado Vermelha"] || p["Resultado Vermelha "] || "0");
+        const resultadoAzul = parseInt(p["Resultado Azul"] || p["Resultado Azul "] || "0");
 
-        // Determina o vencedor
-        let classeVermelha = "alianca-vermelha";
-        let classeAzul = "alianca-azul";
-        if (resultadoVermelha > resultadoAzul) classeVermelha += " vencedor";
-        else if (resultadoAzul > resultadoVermelha) classeAzul += " vencedor";
-
-        // Cria a linha da tabela
         tbody.innerHTML += `
           <tr>
             <td>${rodada}</td>
-            <td class="${classeVermelha}">${vermelha}</td>
-            <td class="${classeAzul}">${azul}</td>
-            <td>
-              <div class="resultado-box pontuacoes" style="display:none;">
+            <td class="alianca-vermelha ${resultadoVermelha > resultadoAzul ? 'vencedora' : ''}">${vermelha}</td>
+            <td class="alianca-azul ${resultadoAzul > resultadoVermelha ? 'vencedora' : ''}">${azul}</td>
+            <td class="resultado-container">
+              <button class="btn-mostrar" onclick="mostrarResultado(this)">Mostrar Pontuações</button>
+              <div class="resultado-box" style="display: none;">
                 <span class="resultado-vermelho">${resultadoVermelha}</span>
                 <span class="resultado-azul">${resultadoAzul}</span>
               </div>
-              <button class="btn btn-sm btn-outline-primary mt-1 toggle-btn">Mostrar</button>
             </td>
           </tr>
         `;
-      });
-
-      // Adiciona interatividade aos botões
-      document.querySelectorAll(".toggle-btn").forEach(botao => {
-        botao.addEventListener("click", () => {
-          const box = botao.parentElement.querySelector(".pontuacoes");
-          const visivel = box.style.display === "flex";
-          box.style.display = visivel ? "none" : "flex";
-          botao.textContent = visivel ? "Mostrar" : "Ocultar";
-        });
       });
 
       $('#tabelaPartidas').DataTable({
@@ -144,17 +150,19 @@
     }
   }
 
+  function mostrarResultado(botao) {
+    const box = botao.nextElementSibling;
+    if (box.style.display === "none") {
+      box.style.display = "flex";
+      botao.textContent = "Ocultar Pontuações";
+    } else {
+      box.style.display = "none";
+      botao.textContent = "Mostrar Pontuações";
+    }
+  }
+
   carregarPartidas();
 </script>
 
-<style>
-  /* Realce do vencedor */
-  .vencedor {
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
-    background-color: #d4edda !important; /* verde clarinho */
-  }
-</style>
-
 </body>
 </html>
-

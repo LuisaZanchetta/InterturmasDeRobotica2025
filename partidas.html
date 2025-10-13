@@ -82,3 +82,44 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
+  <script>
+  const urlMapa = 'https://script.google.com/macros/s/AKfycbx4tWBplA7-IkbktAYu01G7_KwvaQLJd717mV6cecpTZMCHrQFO6avk5RODK-bC_4-eJA/exec';
+
+  async function carregarPartidas() {
+    try {
+      const resposta = await fetch(urlMapa);
+      const dados = await resposta.json();
+
+      const tbody = document.querySelector("#tabelaPartidas tbody");
+      tbody.innerHTML = ""; // limpa caso já tenha algo
+
+      dados.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.Rodada}</td>
+            <td class="alianca-vermelha">${p.Vermelha}</td>
+            <td class="alianca-azul">${p.Azul}</td>
+            <td>
+              <div class="resultado-box">
+                <span class="resultado-vermelho">${p["Resultado Vermelha"]}</span>
+                <span class="resultado-azul">${p["Resultado Azul"]}</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      $('#tabelaPartidas').DataTable({
+        order: [[0, 'asc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+      });
+
+    } catch (erro) {
+      console.error("Erro ao carregar dados do Mapa_Rodadas:", erro);
+      alert("Erro ao carregar dados. Verifique o link da planilha.");
+    }
+  }
+
+  carregarPartidas();
+</script>
+

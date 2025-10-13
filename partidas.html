@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Partidas de Robótica</title>
+  <title>Partidas - Interturmas de Robótica 2025</title>
 
-  <!-- Bootstrap e DataTables -->
+  <!-- Importa o Bootstrap e DataTables -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 
@@ -28,41 +28,25 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     .alianca-vermelha {
-      color: #b30000;
+      background-color: #ffe5e5 !important;
+      color: #b30000 !important;
       font-weight: 600;
     }
     .alianca-azul {
-      color: #0044cc;
+      background-color: #e5f0ff !important;
+      color: #0044cc !important;
       font-weight: 600;
     }
-
-    /* Estilo do resultado */
     .resultado-box {
       display: flex;
-      background: white;
-      border-radius: 6px;
-      overflow: hidden;
-      height: 40px;
-      align-items: center;
       justify-content: space-between;
       font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     .resultado-vermelho {
-      background-color: #b30000;
-      color: white;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: #b30000;
     }
     .resultado-azul {
-      background-color: #0044cc;
-      color: white;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: #0044cc;
     }
     .btn-voltar {
       display: block;
@@ -73,63 +57,70 @@
 </head>
 <body>
 
-  <h1>🤖 Partidas de Robótica</h1>
-
-  <!-- Botão para voltar ao ranking -->
+<h1>🤖 Partidas Interturmas de Robótica 2025</h1>
+<div class="text-center my-3">
   <a href="index.html" class="btn btn-primary btn-voltar">⬅️ Voltar ao Ranking</a>
+</div>
 
-  <div class="table-container">
-    <h2>🧩 Lista de Partidas</h2>
-    <table id="tabelaPartidas" class="table table-striped">
-      <thead>
-        <tr>
-          <th>Rodada</th>
-          <th>Equipe Vermelha</th>
-          <th>Equipe Azul</th>
-          <th>Resultado</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<div class="table-container">
+  <h2>🧩 Partidas</h2>
+  <table id="tabelaPartidas" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Rodada</th>
+        <th>Equipe Vermelha</th>
+        <th>Equipe Azul</th>
+        <th>Resultado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
-  <!-- Bibliotecas JS -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<!-- Bibliotecas JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
-  <script>
-    const endpointMapa = "https://script.google.com/macros/s/AKfycbw9vyf7Dld3DHZXq2ALjvNzjIsrtRU-A-c6vaDqSN88ZwwqBjsvBkL8fi6rD7gtoHlt1Q/exec";
+<script>
+  const urlMapa = "https://script.google.com/macros/s/AKfycbw9vyf7Dld3DHZXq2ALjvNzjIsrtRU-A-c6vaDqSN88ZwwqBjsvBkL8fi6rD7gtoHlt1Q/exec";
 
-    fetch(endpointMapa)
-      .then(res => res.json())
-      .then(dados => {
-        const tbody = document.querySelector("#tabelaPartidas tbody");
+  async function carregarPartidas() {
+    try {
+      const resposta = await fetch(urlMapa);
+      const dados = await resposta.json();
 
-        dados.forEach(p => {
-          const linha = `
-            <tr>
-              <td>${p.Rodada}</td>
-              <td class="alianca-vermelha">${p.Vermelha}</td>
-              <td class="alianca-azul">${p.Azul}</td>
-              <td>
-                <div class="resultado-box">
-                  <div class="resultado-vermelho">${p.Vermelha} ${p["Resultado Vermelha"]}</div>
-                  <div class="resultado-azul">${p.Azul} ${p["Resultado Azul"]}</div>
-                </div>
-              </td>
-            </tr>
-          `;
-          tbody.insertAdjacentHTML("beforeend", linha);
-        });
+      const tbody = document.querySelector("#tabelaPartidas tbody");
 
-        $("#tabelaPartidas").DataTable({
-          language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json" },
-          pageLength: 6
-        });
-      })
-      .catch(err => console.error("Erro ao carregar dados do Mapa de Rodadas:", err));
-  </script>
+      dados.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.Rodada}</td>
+            <td class="alianca-vermelha">${p.Vermelha}</td>
+            <td class="alianca-azul">${p.Azul}</td>
+            <td>
+              <div class="resultado-box">
+                <span class="resultado-vermelho">${p.Vermelha} ${p["Resultado Vermelha"]}</span>
+                <span class="resultado-azul">${p.Azul} ${p["Resultado Azul"]}</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      $('#tabelaPartidas').DataTable({
+        order: [[0, 'asc']],
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
+      });
+
+    } catch (erro) {
+      console.error("Erro ao carregar dados do Mapa de Rodadas:", erro);
+      alert("Erro ao carregar dados. Verifique o link da planilha.");
+    }
+  }
+
+  carregarPartidas();
+</script>
 
 </body>
 </html>

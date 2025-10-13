@@ -106,9 +106,9 @@ async function carregarPartidas() {
     partidas.forEach(p => {
       tbody.innerHTML += `
         <tr>
-          <td>${p.Rodada}</td>
-          <td class="alianca-vermelha">${p.Vermelha}</td>
-          <td class="alianca-azul">${p.Azul}</td>
+          <td>${p.["Rodada"]}</td>
+          <td class="alianca-vermelha">${p.["Vermelha"]}</td>
+          <td class="alianca-azul">${p.["Azul"]}</td>
           <td>
             <div class="resultado-box">
               <span class="resultado-vermelho">${p.resultadoVermelha}</span>

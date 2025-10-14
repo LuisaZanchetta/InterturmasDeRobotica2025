@@ -56,23 +56,8 @@
       <thead>
         <tr>
           <th>Equipe</th>
-          <th>Rodada</th>
-          <th>Aliança</th>
-          <th>Pontuação</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <div class="table-container">
-    <h2>🏅 Ranking Qualificatórias (melhor pontuação)</h2>
-    <table id="tabelaRanking" class="table table-striped">
-      <thead>
-        <tr>
-          <th>Equipe</th>
-          <th>Melhor Pontuação</th>
-          <th>Aliança</th>
+          <th>Pontuação (Média de Potos)</th>
+          <th>Pontuação (Soma)</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -95,9 +80,8 @@
         // Extrai e renomeia colunas relevantes
         const rodadas = dados.map(linha => ({
           equipe: linha["Equipe"],
-          rodada: linha["Rodadas"],
-          alianca: (linha["Alianca"] || "").trim(),
-          pontuacao: parseFloat(linha["Pontuação Total"]) || 0
+          rodada: linha["Pontuação (Média de Potos)"],
+          pontuacao: parseFloat(linha["Pontuação (Soma)"]) || 0
         }));
 
         // --- TABELA DE RODADAS ---

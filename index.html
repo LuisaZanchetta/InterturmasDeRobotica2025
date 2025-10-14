@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ranking - Interturmas de Robótica 2025</title>
 
-  <!-- Importa o Bootstrap e DataTables -->
+  <!-- Bootstrap + DataTables -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 
@@ -27,117 +27,61 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    /* Cores das alianças */
-    .alianca-vermelha {
-      background-color: #ffe5e5 !important;
-      color: #b30000 !important;
-      font-weight: 600;
-    }
-    .alianca-azul {
-      background-color: #e5f0ff !important;
-      color: #0044cc !important;
-      font-weight: 600;
-    }
   </style>
 </head>
 <body>
 
   <h1>Ranking Interturmas de Robótica 2025</h1>
   <div class="text-center my-3">
-  <a href="partidas.html" class="btn btn-primary">Ver Partidas - Manhã</a>
-  <a href="partidasT.html" class="btn btn-primary">Ver Partidas - Tarde</a>
-  <a href="cronometro.html" class="btn btn-success">Abrir Cronômetro</a>
-  
-</div>
+    <a href="partidas.html" class="btn btn-primary">Ver Partidas - Manhã</a>
+    <a href="partidasT.html" class="btn btn-primary">Ver Partidas - Tarde</a>
+    <a href="cronometro.html" class="btn btn-success">Abrir Cronômetro</a>
+  </div>
 
   <div class="table-container">
-    <h2>🧩 Rodadas</h2>
-    <table id="tabelaRodadas" class="table table-striped">
+    <h2>🏅 Ranking Geral (Média de Pontos)</h2>
+    <table id="tabelaRanking" class="table table-striped">
       <thead>
         <tr>
           <th>Equipe</th>
-          <th>Pontuação (Média de Potos)</th>
-          <th>Pontuação (Soma)</th>
+          <th>Média de Pontos</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
-  <!-- Bibliotecas JS -->
+  <!-- JS -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 
   <script>
-    const url = "https://script.google.com/macros/s/AKfycbzLih2c45N0fWtMR3tCkh2CVCUBCxHllYDgSjx9mbXHYUAxWn6PvFkVc8SFY-147ueUQw/exec";
+    // ✅ Coloque aqui o link do seu Apps Script da ABA NOVA (com médias)
+    const url = "https://script.google.com/macros/s/AKfycbyEGHPFEVMWKq3PtDwt2Q0Riha9IF9KOb0xs09F-GfjD6ymNCjpKjAbEw6bEz6ylhWz-g/exec";
 
     async function carregarDados() {
       try {
         const resposta = await fetch(url);
         const dados = await resposta.json();
 
-        // Extrai e renomeia colunas relevantes
-        const rodadas = dados.map(linha => ({
-          equipes: linha["Equipe"],
-          media: linha["Pontuação (Média de Potos)"],
-          pontuacao: parseFloat(linha["Pontuação (Soma)"]) || 0
-        }));
+        // --- Monta a tabela ---
+        const corpo = document.querySelector("#tabelaRanking tbody");
+        corpo.innerHTML = "";
 
-        // --- TABELA DE RODADAS ---
-const corpoRodadas = document.querySelector("#tabelaRodadas tbody");
-rodadas.forEach(r => {
-  const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
-    ? "alianca-vermelha"
-    : r.alianca.toLowerCase().includes("azul")
-      ? "alianca-azul"
-      : "";
-  corpoRodadas.innerHTML += `
-    <tr class="${classeAlianca}">
-      <td>${r.equipe}</td>
-      <td>${r.rodada}</td>
-      <td>${r.alianca}</td>
-      <td>${r.pontuacao}</td>
-    </tr>
-  `;
-});
+        dados.forEach(linha => {
+          const equipe = linha["Equipe"];
+          const media = parseFloat(linha["Média"]) || 0;
 
-
-
-        // --- RANKING GERAL (maior pontuação por equipe) ---
-        const rankingMap = {};
-        rodadas.forEach(r => {
-          if (!rankingMap[r.equipe] || r.pontuacao > rankingMap[r.equipe].pontuacao) {
-            rankingMap[r.equipe] = { pontuacao: r.pontuacao, alianca: r.alianca };
-          }
-        });
-
-        const rankingGeral = Object.entries(rankingMap)
-          .map(([equipe, info]) => ({ equipe, ...info }))
-          .sort((a, b) => b.pontuacao - a.pontuacao);
-
-        const corpoRanking = document.querySelector("#tabelaRanking tbody");
-        rankingGeral.forEach(r => {
-          const classeAlianca = r.alianca.toLowerCase().includes("vermelha")
-            ? "alianca-vermelha"
-            : r.alianca.toLowerCase().includes("azul")
-              ? "alianca-azul"
-              : "";
-          corpoRanking.innerHTML += `
-            <tr class="${classeAlianca}">
-              <td>${r.equipe}</td>
-              <td>${r.pontuacao}</td>
-              <td>${r.alianca}</td>
+          corpo.innerHTML += `
+            <tr>
+              <td>${equipe}</td>
+              <td>${media.toFixed(2)}</td>
             </tr>
           `;
         });
 
-        // --- Ativa DataTables (busca e ordenação) ---
-        $('#tabelaRodadas').DataTable({
-          order: [[3, 'desc']],
-          language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
-        });
-
+        // --- DataTables ---
         $('#tabelaRanking').DataTable({
           order: [[1, 'desc']],
           language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json' }
@@ -151,6 +95,5 @@ rodadas.forEach(r => {
 
     carregarDados();
   </script>
-
 </body>
 </html>

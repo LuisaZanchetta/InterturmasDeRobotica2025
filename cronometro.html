@@ -1,220 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Sorteador de Cores</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timer 2m30s com Contagem Inicial</title>
   <style>
-    :root{
-      --bg: #f4f4f4;
-      --panel-shadow: rgba(0,0,0,0.18);
-      --btn: #333;
-      --gap: 28px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      gap:20px;
-      background:var(--bg);
-      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      padding:40px 24px;
-      color:#222;
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      text-align: center;
     }
 
-    h1{
-      margin:0;
-      font-size:48px;
-      font-weight:800;
-      display:flex;
-      align-items:center;
-      gap:12px;
+    #timer {
+      font-size: 20em; /* números grandes */
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
     }
 
-    .top-row{
-      display:flex;
-      gap:var(--gap);
-      justify-content:center;
-      align-items:center;
-      margin-top:12px;
+    #countdown {
+      font-size: 15em; /* contagem inicial grande */
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #ff4444;
     }
-
-    .square {
-      width:140px;
-      height:140px;
-      border-radius:18px;
-      transition: background-color 180ms, transform 300ms, box-shadow 300ms;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    /* small squares container to center and allow responsiveness */
-    .small-container{
-      display:flex;
-      gap:24px;
-      justify-content:center;
-      align-items:center;
-      margin-top:18px;
-    }
-
-    /* big result square */
-    .big-square {
-      width:320px;
-      height:320px;
-      border-radius:28px;
-      margin-top:22px;
-      box-shadow: 0 30px 40px rgba(0,0,0,0.15);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transform:scale(1);
-      transition: transform 450ms cubic-bezier(.2,.8,.2,1), box-shadow 350ms;
-    }
-
-    /* hidden by default until first result */
-    .big-square.hidden{ display:none; }
 
     button {
-      margin-top:20px;
-      background:var(--btn);
-      color:white;
-      border:none;
-      padding:14px 28px;
-      font-size:20px;
-      border-radius:14px;
-      cursor:pointer;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-      transition: transform 150ms, background 200ms;
-    }
-    button:active{ transform:translateY(2px) }
-    button:disabled{ opacity:0.6; cursor:not-allowed }
-
-    /* highlight animation for the selected small square */
-    .small-selected{
-      transform:scale(1.08);
-      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+      padding: 12px 25px;
+      font-size: 1.5em;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
     }
 
-    /* rotate-in effect for big square */
-    @keyframes reveal {
-      0% { transform: rotate(-20deg) scale(.85); opacity:0; }
-      60% { transform: rotate(8deg) scale(1.03); opacity:1; }
-      100% { transform: rotate(0deg) scale(1); }
-    }
-    .reveal {
-      animation: reveal 520ms cubic-bezier(.2,.9,.25,1);
+    button:hover {
+      background-color: #0056b3;
     }
 
-    /* small pulse for emphasis */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.06); }
-      100% { transform: scale(1); }
-    }
-    .pulse { animation: pulse 700ms ease-in-out; }
-
-    /* responsive */
-    @media (max-width:520px){
-      h1{ font-size:32px }
-      .square{ width:88px; height:88px; border-radius:12px }
-      .big-square{ width:240px; height:240px; border-radius:20px }
+    button:active {
+      transform: scale(0.95);
     }
   </style>
 </head>
 <body>
-  <h1>Sorteador de Cores</h1>
 
-  <div class="small-container">
-    <!-- estes três sempre serão definidos como vermelho, verde, azul ao final -->
-    <div class="square" id="sq0" aria-label="Vermelho"></div>
-    <div class="square" id="sq1" aria-label="Verde"></div>
-    <div class="square" id="sq2" aria-label="Azul"></div>
+  <div id="countdown"></div>
+  <div id="timer">02:30</div>
+  <div>
+    <button onclick="startCountdown()">Iniciar</button>
+    <button onclick="pauseTimer()">Pausar</button>
+    <button onclick="resetTimer()">Resetar</button>
   </div>
 
-  <button id="btn" onclick="rodar()">Rodar</button>
-
-  <div id="resultado" class="big-square hidden" role="status" aria-live="polite"></div>
+  <!-- Sons -->
+  <audio id="beep" src="https://www.soundjay.com/button/beep-07.mp3" preload="auto"></audio>
+  <audio id="alarm" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
 
   <script>
-    // cores e referência entre nome <-> índice
-    const cores = ['red','green','blue'];
-    const nomePorCor = { 'red':'Vermelho', 'green':'Verde', 'blue':'Azul' };
-    const indexPorCor = { red:0, green:1, blue:2 };
+    const totalSeconds = 150; // 2 minutos 30 segundos
+    let timerInterval = null;
+    let remaining = totalSeconds;
+    let countdownInterval = null;
+    let isPaused = false;
 
-    // elementos
-    const pequenos = [
-      document.getElementById('sq0'),
-      document.getElementById('sq1'),
-      document.getElementById('sq2')
-    ];
-    const btn = document.getElementById('btn');
-    const resultado = document.getElementById('resultado');
+    const countdownEl = document.getElementById('countdown');
+    const timerEl = document.getElementById('timer');
+    const beep = document.getElementById('beep');
+    const alarm = document.getElementById('alarm');
 
-    // inicializa os pequenos com as cores fixas (para evitar todos azuis como na sua captura)
-    function setPequenosFixos(){
-      pequenos[0].style.backgroundColor = 'red';
-      pequenos[1].style.backgroundColor = 'green';
-      pequenos[2].style.backgroundColor = 'blue';
-      pequenos.forEach(el => el.classList.remove('small-selected','pulse'));
+    // Contagem inicial 3-2-1-Minds
+    function startCountdown() {
+      if (timerInterval) return; // evita reiniciar o timer se já estiver rodando
+      countdownEl.textContent = "3";
+      let count = 3;
+      beep.play();
+
+      countdownInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+          countdownEl.textContent = count;
+          beep.play();
+        } else {
+          countdownEl.textContent = "Motion!";
+          beep.play();
+          clearInterval(countdownInterval);
+          setTimeout(() => {
+            countdownEl.textContent = "";
+            startTimer();
+          }, 1000);
+        }
+      }, 1000);
     }
-    setPequenosFixos();
 
-    let intervalId = null;
-    let running = false;
+    // Timer principal
+    function startTimer() {
+      updateDisplay(remaining);
+      timerInterval = setInterval(() => {
+        if (!isPaused) {
+          remaining--;
+          if (remaining < 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            alarm.play();
+            alert("Tempo encerrado!");
+            return;
+          }
+          updateDisplay(remaining);
+        }
+      }, 1000);
+    }
 
-    function rodar(){
-      if(running) return;
-      running = true;
-      btn.disabled = true;
-      resultado.classList.add('hidden'); // esconde resultado enquanto sorteia
-      resultado.classList.remove('reveal');
-      // remove qualquer destaque antigo
-      pequenos.forEach(p => p.classList.remove('small-selected','pulse'));
+    // Atualiza o display do timer
+    function updateDisplay(seconds) {
+      const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const sec = String(seconds % 60).padStart(2, '0');
+      timerEl.textContent = `${min}:${sec}`;
+    }
 
-      // animação rápida: muda as cores dos pequenos de forma aleatória
-      intervalId = setInterval(()=> {
-        pequenos.forEach(p=>{
-          // cores aleatórias durante animação
-          const c = cores[Math.floor(Math.random()*cores.length)];
-          p.style.backgroundColor = c;
-        });
-      }, 90);
+    // Pausar/continuar
+    function pauseTimer() {
+      isPaused = !isPaused;
+    }
 
-      // duração do sorteio
-      const duracao = 3000; // 3s (mude se quiser)
-      setTimeout(()=> {
-        clearInterval(intervalId);
-        // sorteia a cor final (red | green | blue)
-        const corSorteada = cores[Math.floor(Math.random()*cores.length)];
-
-        // mostra o quadrado grande com a cor sorteada
-        resultado.style.backgroundColor = corSorteada;
-        resultado.classList.remove('hidden');
-        // anima a entrada
-        void resultado.offsetWidth; // força reflow para reiniciar a animação
-        resultado.classList.add('reveal');
-
-        // agora ajusta os pequenos para as cores FIXAS (vermelho, verde, azul)
-        setPequenosFixos();
-
-        // destaca o pequeno correspondente à cor sorteada
-        const idx = indexPorCor[corSorteada];
-        pequenos[idx].classList.add('small-selected','pulse');
-
-        // label acessível dentro do quadrado grande
-        resultado.textContent = nomePorCor[corSorteada];
-
-        // reabilita botão depois de um breve delay para permitir ver animação
-        setTimeout(()=> {
-          btn.disabled = false;
-          running = false;
-        }, 700);
-
-      }, duracao);
+    // Resetar timer
+    function resetTimer() {
+      clearInterval(timerInterval);
+      clearInterval(countdownInterval);
+      timerInterval = null;
+      countdownInterval = null;
+      remaining = totalSeconds;
+      isPaused = false;
+      countdownEl.textContent = "";
+      updateDisplay(remaining);
     }
   </script>
+
 </body>
 </html>

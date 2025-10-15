@@ -5,96 +5,216 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Sorteador de Cores</title>
   <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 20px;
-      background: #f4f4f4;
-      font-family: "Inter", system-ui, sans-serif;
-      padding: 40px 24px;
-      color: #222;
+    :root{
+      --bg: #f4f4f4;
+      --panel-shadow: rgba(0,0,0,0.18);
+      --btn: #333;
+      --gap: 28px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:20px;
+      background:var(--bg);
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      padding:40px 24px;
+      color:#222;
     }
 
-    h1 {
-      margin: 0;
-      font-size: 48px;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    h1{
+      margin:0;
+      font-size:48px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:12px;
     }
 
-    .small-container {
-      display: flex;
-      gap: 24px;
-      justify-content: center;
-      align-items: center;
-      margin-top: 18px;
+    .top-row{
+      display:flex;
+      gap:var(--gap);
+      justify-content:center;
+      align-items:center;
+      margin-top:12px;
     }
 
     .square {
-      width: 140px;
-      height: 140px;
-      border-radius: 18px;
+      width:140px;
+      height:140px;
+      border-radius:18px;
       transition: background-color 180ms, transform 300ms, box-shadow 300ms;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
 
-    .big-square {
-      width: 320px;
-      height: 320px;
-      border-radius: 28px;
-      margin-top: 22px;
-      box-shadow: 0 30px 40px rgba(0, 0, 0, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      font-weight: 700;
-      color: white;
-      display: none;
-      text-transform: uppercase;
+    /* small squares container to center and allow responsiveness */
+    .small-container{
+      display:flex;
+      gap:24px;
+      justify-content:center;
+      align-items:center;
+      margin-top:18px;
     }
+
+    /* big result square */
+    .big-square {
+      width:320px;
+      height:320px;
+      border-radius:28px;
+      margin-top:22px;
+      box-shadow: 0 30px 40px rgba(0,0,0,0.15);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transform:scale(1);
+      transition: transform 450ms cubic-bezier(.2,.8,.2,1), box-shadow 350ms;
+    }
+
+    /* hidden by default until first result */
+    .big-square.hidden{ display:none; }
 
     button {
-      margin-top: 20px;
-      background: #333;
-      color: white;
-      border: none;
-      padding: 14px 28px;
-      font-size: 20px;
-      border-radius: 14px;
-      cursor: pointer;
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+      margin-top:20px;
+      background:var(--btn);
+      color:white;
+      border:none;
+      padding:14px 28px;
+      font-size:20px;
+      border-radius:14px;
+      cursor:pointer;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
       transition: transform 150ms, background 200ms;
     }
+    button:active{ transform:translateY(2px) }
+    button:disabled{ opacity:0.6; cursor:not-allowed }
 
-    button:active {
-      transform: translateY(2px);
+    /* highlight animation for the selected small square */
+    .small-selected{
+      transform:scale(1.08);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.18);
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .small-selected {
-      transform: scale(1.08);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
-    }
-
+    /* rotate-in effect for big square */
     @keyframes reveal {
       0% { transform: rotate(-20deg) scale(.85); opacity:0; }
       60% { transform: rotate(8deg) scale(1.03); opacity:1; }
       100% { transform: rotate(0deg) scale(1); }
     }
-    .reveal { animation: reveal 0.5s ease-out; }
+    .reveal {
+      animation: reveal 520ms cubic-bezier(.2,.9,.25,1);
+    }
 
+    /* small pulse for emphasis */
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.06); }
-      100% {
+      100% { transform: scale(1); }
+    }
+    .pulse { animation: pulse 700ms ease-in-out; }
+
+    /* responsive */
+    @media (max-width:520px){
+      h1{ font-size:32px }
+      .square{ width:88px; height:88px; border-radius:12px }
+      .big-square{ width:240px; height:240px; border-radius:20px }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Sorteador de Cores</h1>
+
+  <div class="small-container">
+    <!-- estes três sempre serão definidos como vermelho, verde, azul ao final -->
+    <div class="square" id="sq0" aria-label="Vermelho"></div>
+    <div class="square" id="sq1" aria-label="Verde"></div>
+    <div class="square" id="sq2" aria-label="Azul"></div>
+  </div>
+
+  <button id="btn" onclick="rodar()">Rodar</button>
+
+  <div id="resultado" class="big-square hidden" role="status" aria-live="polite"></div>
+
+  <script>
+    // cores e referência entre nome <-> índice
+    const cores = ['red','green','blue'];
+    const nomePorCor = { 'red':'Vermelho', 'green':'Verde', 'blue':'Azul' };
+    const indexPorCor = { red:0, green:1, blue:2 };
+
+    // elementos
+    const pequenos = [
+      document.getElementById('sq0'),
+      document.getElementById('sq1'),
+      document.getElementById('sq2')
+    ];
+    const btn = document.getElementById('btn');
+    const resultado = document.getElementById('resultado');
+
+    // inicializa os pequenos com as cores fixas (para evitar todos azuis como na sua captura)
+    function setPequenosFixos(){
+      pequenos[0].style.backgroundColor = 'red';
+      pequenos[1].style.backgroundColor = 'green';
+      pequenos[2].style.backgroundColor = 'blue';
+      pequenos.forEach(el => el.classList.remove('small-selected','pulse'));
+    }
+    setPequenosFixos();
+
+    let intervalId = null;
+    let running = false;
+
+    function rodar(){
+      if(running) return;
+      running = true;
+      btn.disabled = true;
+      resultado.classList.add('hidden'); // esconde resultado enquanto sorteia
+      resultado.classList.remove('reveal');
+      // remove qualquer destaque antigo
+      pequenos.forEach(p => p.classList.remove('small-selected','pulse'));
+
+      // animação rápida: muda as cores dos pequenos de forma aleatória
+      intervalId = setInterval(()=> {
+        pequenos.forEach(p=>{
+          // cores aleatórias durante animação
+          const c = cores[Math.floor(Math.random()*cores.length)];
+          p.style.backgroundColor = c;
+        });
+      }, 90);
+
+      // duração do sorteio
+      const duracao = 3000; // 3s (mude se quiser)
+      setTimeout(()=> {
+        clearInterval(intervalId);
+        // sorteia a cor final (red | green | blue)
+        const corSorteada = cores[Math.floor(Math.random()*cores.length)];
+
+        // mostra o quadrado grande com a cor sorteada
+        resultado.style.backgroundColor = corSorteada;
+        resultado.classList.remove('hidden');
+        // anima a entrada
+        void resultado.offsetWidth; // força reflow para reiniciar a animação
+        resultado.classList.add('reveal');
+
+        // agora ajusta os pequenos para as cores FIXAS (vermelho, verde, azul)
+        setPequenosFixos();
+
+        // destaca o pequeno correspondente à cor sorteada
+        const idx = indexPorCor[corSorteada];
+        pequenos[idx].classList.add('small-selected','pulse');
+
+        // label acessível dentro do quadrado grande
+        resultado.textContent = nomePorCor[corSorteada];
+
+        // reabilita botão depois de um breve delay para permitir ver animação
+        setTimeout(()=> {
+          btn.disabled = false;
+          running = false;
+        }, 700);
+
+      }, duracao);
+    }
+  </script>
+</body>
+</html>

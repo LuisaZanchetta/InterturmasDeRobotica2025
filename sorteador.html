@@ -125,7 +125,7 @@
   </style>
 </head>
 <body>
-<audio id="alarm" src="vintage-car-horn-153264.mp3" preload="auto"></audio>
+<audio id="roleta" src="roleta-267662.mp3" preload="auto"></audio>
   
   <h1>🎲 Sorteador de Cores</h1>
 
@@ -187,6 +187,7 @@
 
       // duração do sorteio
       const duracao = 3000; // 3s (mude se quiser)
+      document.getElementById('roleta').play();
       setTimeout(()=> {
         clearInterval(intervalId);
         // sorteia a cor final (red | green | blue)
